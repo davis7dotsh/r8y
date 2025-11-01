@@ -1,1 +1,1 @@
-export const DB_MUTATIONS = {}
+export const DB_MUTATIONS = {};
