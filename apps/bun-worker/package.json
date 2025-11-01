@@ -1,21 +1,24 @@
 {
-  "name": "@r8y/bun-worker",
-  "module": "src/index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outfile dist/index.js"
-  },
+	"name": "@r8y/bun-worker",
+	"module": "src/index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun --watch src/index.ts",
+		"build": "bun build src/index.ts --outfile dist/index.js",
+		"format": "prettier --write .",
+		"lint": "prettier --check ."
+	},
 	"dependencies": {
 		"@r8y/db": "*",
 		"neverthrow": "^8.2.0",
 		"zod": "^4.1.12"
 	},
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"devDependencies": {
+		"@types/bun": "latest",
+		"prettier": "^3.6.2"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }

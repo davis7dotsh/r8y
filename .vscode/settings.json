@@ -1,9 +1,26 @@
 {
-  "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#004fbd",
-    "titleBar.activeForeground": "#ffffff",
-    "titleBar.inactiveBackground": "#004fbd",
-    "titleBar.inactiveForeground": "#ffffff"
-  }
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+  "titleBar.activeBackground": "#004fbd",
+  "titleBar.activeForeground": "#ffffff",
+  "titleBar.inactiveBackground": "#004fbd",
+  "titleBar.inactiveForeground": "#ffffff",
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[svelte]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }
-

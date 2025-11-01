@@ -4,13 +4,16 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "format": "prettier --write .",
+    "lint": "prettier --check ."
   },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
     "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.31.6"
+    "drizzle-kit": "^0.31.6",
+    "prettier": "^3.6.2"
   },
   "peerDependencies": {
     "typescript": "^5"
