@@ -1,5 +1,5 @@
 import { building } from '$app/environment';
-import { env } from '$env/dynamic/private';
+import { DATABASE_URL } from '$env/static/private';
 import { getDbConnection, type DbConnection } from '@r8y/db';
 
 const globalForDb = globalThis as unknown as {
@@ -12,7 +12,7 @@ const getClient = () => {
 	}
 
 	if (!globalForDb.client) {
-		globalForDb.client = getDbConnection(env.DATABASE_URL);
+		globalForDb.client = getDbConnection(DATABASE_URL);
 	}
 
 	return globalForDb.client;
