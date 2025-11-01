@@ -1,8 +1,11 @@
 import { query } from '$app/server';
+import { DB_SCHEMA } from '@r8y/db';
+import { dbClient } from './db';
 
 export const remoteDemo = query(async () => {
-	await new Promise((resolve) => setTimeout(resolve, 1000));
+	const result = await dbClient.select().from(DB_SCHEMA.channels);
+
 	return {
-		message: 'asdf'
+		channels: result
 	};
 });
