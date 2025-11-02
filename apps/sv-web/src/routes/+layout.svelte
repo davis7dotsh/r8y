@@ -2,6 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { setAuthStore } from '$lib/auth/AuthStore.svelte';
+	import { ModeWatcher } from 'mode-watcher';
 
 	setAuthStore();
 
@@ -13,8 +14,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="flex min-h-screen flex-col items-center justify-between bg-neutral-50 text-neutral-800">
-	<header class="py-4"></header>
+<ModeWatcher />
+<div class="flex min-h-screen flex-col items-center justify-between">
 	{@render children?.()}
-	<footer class="py-4"></footer>
 </div>

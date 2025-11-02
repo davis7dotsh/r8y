@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { getAuthStore } from '$lib/auth/AuthStore.svelte.js';
 	import RootLoader from '$lib/components/RootLoader.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -14,7 +15,9 @@
 		const result = await authStore.handleSignIn(authPassword);
 		if (!result) {
 			alert('Failed to sign in');
+			return;
 		}
+		goto('/app');
 	};
 </script>
 
@@ -26,7 +29,7 @@
 	</main>
 {:else}
 	<form class="flex grow flex-col items-start justify-center gap-4" onsubmit={handleSubmit}>
-		<h2 class="text-2xl font-bold">Sign in</h2>
+		<h2 class="text-2xl font-bold">r8y 3.0</h2>
 		<div class="flex w-full max-w-sm flex-col gap-1.5">
 			<Label for="password">Password</Label>
 			<Input type="password" id="password" placeholder="password" bind:value={authPassword} />

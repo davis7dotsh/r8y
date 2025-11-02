@@ -16,6 +16,7 @@
 	},
 	"dependencies": {
 		"@r8y/db": "*",
+		"mode-watcher": "^1.1.0",
 		"neverthrow": "^8.2.0",
 		"runed": "^0.35.1",
 		"zod": "^4.1.12"
