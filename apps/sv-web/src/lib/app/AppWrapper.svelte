@@ -49,7 +49,7 @@
 		</div>
 	</aside>
 
-	<main class="flex grow flex-col items-center justify-center gap-4">
+	<main class="h-screen w-full overflow-auto">
 		{@render children()}
 	</main>
 </div>
