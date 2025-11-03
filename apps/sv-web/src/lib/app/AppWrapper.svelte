@@ -17,6 +17,7 @@
 	<aside class="flex w-64 flex-col border-r border-sidebar-border bg-sidebar p-4">
 		<nav class="flex flex-col gap-2">
 			<Button href="/app" variant="ghost" class="justify-start">Home</Button>
+			<Button href="/app/channels" variant="ghost" class="justify-start">Channels</Button>
 		</nav>
 		<div class="mt-auto flex flex-col gap-2">
 			<DropdownMenu.Root>
