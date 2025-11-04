@@ -6,6 +6,49 @@ const youtube = google.youtube({
 	auth: Bun.env.YT_API_KEY!
 });
 
+export const getVideosForChannel = async (args: { ytChannelId: string; maxResults?: number }) => {
+	const { ytChannelId, maxResults: maxResultsArg } = args;
+	const maxResults = maxResultsArg || 50;
+
+	const videoIds: string[] = [];
+	let nextPageToken: string | undefined;
+
+	do {
+		const searchResponse = await ResultAsync.fromPromise(
+			youtube.search.list({
+				part: ['id'],
+				channelId: ytChannelId,
+				type: ['video'],
+				order: 'date',
+				maxResults: 50,
+				pageToken: nextPageToken
+			}),
+			(error) => new Error(`Failed to get videos for channel ${ytChannelId}: ${error}`)
+		);
+
+		if (searchResponse.isErr()) {
+			return err(
+				new Error(
+					`Failed to get videos for channel ${ytChannelId}: ${searchResponse.error.message}`
+				)
+			);
+		}
+
+		const searchResponseValue = searchResponse.value.data;
+
+		const items = searchResponseValue.items || [];
+		for (const item of items) {
+			if (item.id?.videoId) {
+				videoIds.push(item.id.videoId);
+			}
+		}
+
+		nextPageToken = searchResponseValue.nextPageToken || undefined;
+	} while (nextPageToken && videoIds.length < maxResults);
+
+	return ok(videoIds);
+};
+
 export const getVideoComments = (data: { ytVideoId: string; maxResults?: number }) => {
 	return ResultAsync.fromPromise(
 		youtube.commentThreads.list({

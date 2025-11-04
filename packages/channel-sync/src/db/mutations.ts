@@ -187,28 +187,30 @@ export const DB_MUTATIONS = {
 			existingCommentIds.includes(comment.ytCommentId)
 		);
 
-		const insertResult = await ResultAsync.fromPromise(
-			dbClient.insert(DB_SCHEMA.comments).values(
-				commentsToInsert.map((comment) => ({
-					ytCommentId: comment.ytCommentId,
-					ytVideoId: data.ytVideoId,
-					text: comment.text,
-					author: comment.author,
-					publishedAt: new Date(comment.publishedAt),
-					likeCount: comment.likeCount,
-					replyCount: comment.replyCount,
-					isEditingMistake: false,
-					isSponsorMention: false,
-					isQuestion: false,
-					isPositiveComment: false,
-					isProcessed: false
-				}))
-			),
-			() => new Error('Failed to bulk insert comments')
-		).map(() => undefined);
+		if (commentsToInsert.length > 0) {
+			const insertResult = await ResultAsync.fromPromise(
+				dbClient.insert(DB_SCHEMA.comments).values(
+					commentsToInsert.map((comment) => ({
+						ytCommentId: comment.ytCommentId,
+						ytVideoId: data.ytVideoId,
+						text: comment.text,
+						author: comment.author,
+						publishedAt: new Date(comment.publishedAt),
+						likeCount: comment.likeCount,
+						replyCount: comment.replyCount,
+						isEditingMistake: false,
+						isSponsorMention: false,
+						isQuestion: false,
+						isPositiveComment: false,
+						isProcessed: false
+					}))
+				),
+				() => new Error('Failed to bulk insert comments')
+			).map(() => undefined);
 
-		if (insertResult.isErr()) {
-			return insertResult;
+			if (insertResult.isErr()) {
+				return insertResult;
+			}
 		}
 
 		const updateCommentsInputs = commentsToUpdate.map((comment) => {

@@ -47,43 +47,60 @@ export const syncVideo = async (args: { ytVideoId: string }) => {
 
 	const channel = channelResult.value;
 
-	const sponsorResult = await getSponsor({
-		sponsorPrompt: channel.findSponsorPrompt,
-		videoDescription: videoDetails.value.description
-	});
+	const currentSponsorResult = await DB_QUERIES.getSponsorForVideo(args.ytVideoId);
+	if (currentSponsorResult.isErr()) {
+		return err(new SyncVideoError(currentSponsorResult.error.message));
+	}
 
-	let sponsor: { name: string } = { name: 'No sponsor' };
-	if (sponsorResult.isOk()) {
-		sponsor = { name: sponsorResult.value.sponsorName };
-		const existingSponsor = await DB_QUERIES.getSponsorByKey(sponsorResult.value.sponsorKey);
-		if (existingSponsor.isOk() && existingSponsor.value) {
-			const attachSponsorResult = await DB_MUTATIONS.attachSponsorToVideo({
-				sponsorId: existingSponsor.value.sponsorId,
-				ytVideoId: args.ytVideoId
-			});
-			if (attachSponsorResult.isErr()) {
-				return err(new SyncVideoError(attachSponsorResult.error.message));
-			}
-		} else {
-			const newSponsorResult = await DB_MUTATIONS.createSponsor({
-				ytChannelId: channel.ytChannelId,
-				sponsorKey: sponsorResult.value.sponsorKey,
-				name: sponsorResult.value.sponsorName
-			});
-			if (newSponsorResult.isErr()) {
-				return err(new SyncVideoError(newSponsorResult.error.message));
-			}
-			const attachSponsorResult = await DB_MUTATIONS.attachSponsorToVideo({
-				sponsorId: newSponsorResult.value,
-				ytVideoId: args.ytVideoId
-			});
-			if (attachSponsorResult.isErr()) {
-				return err(new SyncVideoError(attachSponsorResult.error.message));
+	const currentSponsor = currentSponsorResult.value;
+
+	let sponsor: { name: string } = currentSponsor
+		? { name: currentSponsor.name }
+		: { name: 'No sponsor' };
+
+	if (!currentSponsor) {
+		const sponsorResult = await getSponsor({
+			sponsorPrompt: channel.findSponsorPrompt,
+			videoDescription: videoDetails.value.description
+		});
+
+		if (sponsorResult.isOk()) {
+			sponsor = { name: sponsorResult.value.sponsorName };
+
+			const existingSponsor = await DB_QUERIES.getSponsorByKey(sponsorResult.value.sponsorKey);
+
+			if (existingSponsor.isOk() && existingSponsor.value) {
+				const attachSponsorResult = await DB_MUTATIONS.attachSponsorToVideo({
+					sponsorId: existingSponsor.value.sponsorId,
+					ytVideoId: args.ytVideoId
+				});
+
+				if (attachSponsorResult.isErr()) {
+					return err(new SyncVideoError(attachSponsorResult.error.message));
+				}
+			} else {
+				const newSponsorResult = await DB_MUTATIONS.createSponsor({
+					ytChannelId: channel.ytChannelId,
+					sponsorKey: sponsorResult.value.sponsorKey,
+					name: sponsorResult.value.sponsorName
+				});
+
+				if (newSponsorResult.isErr()) {
+					return err(new SyncVideoError(newSponsorResult.error.message));
+				}
+
+				const attachSponsorResult = await DB_MUTATIONS.attachSponsorToVideo({
+					sponsorId: newSponsorResult.value,
+					ytVideoId: args.ytVideoId
+				});
+
+				if (attachSponsorResult.isErr()) {
+					return err(new SyncVideoError(attachSponsorResult.error.message));
+				}
 			}
 		}
 	}
 
-	// todo: figure out how to only parse the sponsor if the video was inserted and get it in the comment stuff later...
 	if (wasInserted) {
 		await sendVideoLiveToDiscord(
 			{

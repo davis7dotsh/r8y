@@ -1,4 +1,4 @@
-import { ResultAsync } from 'neverthrow';
+import { okAsync, ResultAsync } from 'neverthrow';
 import { dbClient } from '.';
 import { DB_SCHEMA, eq, inArray } from '@r8y/db';
 
@@ -80,6 +80,32 @@ export const DB_QUERIES = {
 				.limit(1),
 			() => new Error('Failed to get sponsor by id')
 		).map((sponsors) => sponsors[0] || null);
+	},
+
+	getSponsorForVideo: (ytVideoId: string) => {
+		return ResultAsync.fromPromise(
+			dbClient
+				.select()
+				.from(DB_SCHEMA.sponsorToVideos)
+				.where(eq(DB_SCHEMA.sponsorToVideos.ytVideoId, ytVideoId))
+				.limit(1),
+			() => new Error('Failed to get sponsor for video')
+		)
+			.map((sponsors) => sponsors[0] || null)
+			.andThen((sponsor) => {
+				if (sponsor) {
+					return ResultAsync.fromPromise(
+						dbClient
+							.select()
+							.from(DB_SCHEMA.sponsors)
+							.where(eq(DB_SCHEMA.sponsors.sponsorId, sponsor.sponsorId))
+							.limit(1),
+						() => new Error('Failed to get sponsor by id')
+					).map((sponsors) => sponsors[0] || null);
+				} else {
+					return okAsync(null);
+				}
+			});
 	},
 
 	getSponsorAttachmentByVideoId: (ytVideoId: string) => {
