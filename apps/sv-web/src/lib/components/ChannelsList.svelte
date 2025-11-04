@@ -12,8 +12,6 @@
 		}
 		return num.toString();
 	};
-
-	$inspect('channels', channels);
 </script>
 
 {#if channels.length === 0}
