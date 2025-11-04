@@ -1,27 +1,26 @@
 <script lang="ts">
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { remoteGetChannelDetails } from '$lib/remote/channels.remote';
-	import ChannelVideos from '$lib/components/ChannelVideos.svelte';
-	import ChannelNotifications from '$lib/components/ChannelNotifications.svelte';
-	import { Spinner } from '$lib/components/ui/spinner';
-	import { page } from '$app/state';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import ChannelFullDetails from '$lib/components/ChannelFullDetails.svelte';
 	import ChannelLastSevenVids from '$lib/components/ChannelLastSevenVids.svelte';
 	import ChannelAllSponsors from '$lib/components/ChannelAllSponsors.svelte';
+	import { page } from '$app/state';
+	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
 
 	const channelId = $derived(page.params.channelId as string);
 
 	const channel = $derived(await remoteGetChannelDetails(channelId));
 
-	let tab = $state('details');
+	let tab = $state<'details' | 'recent' | 'sponsors'>('details');
 </script>
 
 <svelte:head>
 	<title>{channel.name}</title>
 </svelte:head>
 
-<div class="w-full">
+<div class="flex flex-col gap-4 p-8">
+	<ChannelHeader {channelId} />
 	<div class="mb-6 flex w-full items-center justify-between">
 		<Breadcrumb.Root>
 			<Breadcrumb.List>

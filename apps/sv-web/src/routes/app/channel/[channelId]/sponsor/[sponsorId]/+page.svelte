@@ -4,6 +4,7 @@
 	import SponsorStats from '$lib/components/SponsorStats.svelte';
 	import SponsorVideosTable from '$lib/components/SponsorVideosTable.svelte';
 	import { page } from '$app/state';
+	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
 
 	const sponsorId = $derived(page.params.sponsorId as string);
 	const channelId = $derived(page.params.channelId as string);
@@ -12,7 +13,8 @@
 	const channel = $derived(await remoteGetChannelDetails(channelId));
 </script>
 
-<div class="">
+<div class="flex flex-col gap-4 p-8">
+	<ChannelHeader {channelId} />
 	<div class="mb-6">
 		<Breadcrumb.Root>
 			<Breadcrumb.List>

@@ -4,6 +4,7 @@
 	import VideoNotificationsTable from '$lib/components/VideoNotificationsTable.svelte';
 	import VideoCommentsTable from '$lib/components/VideoCommentsTable.svelte';
 	import { page } from '$app/state';
+	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
 
 	const videoId = $derived(page.params.videoId as string);
 	const channelId = $derived(page.params.channelId as string);
@@ -30,7 +31,8 @@
 	};
 </script>
 
-<div class="">
+<div class="flex flex-col gap-4 p-8">
+	<ChannelHeader {channelId} />
 	<div class="mb-6">
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
