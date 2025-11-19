@@ -12,7 +12,7 @@ const getClient = () => {
 	}
 
 	if (!globalForDb.client) {
-		globalForDb.client = getDbConnection(env.DATABASE_URL);
+		globalForDb.client = getDbConnection(env.MYSQL_URL);
 	}
 
 	return globalForDb.client;
