@@ -7,7 +7,7 @@ export const DB_QUERIES = {
 		const channelsResult = await ResultAsync.fromPromise(
 			dbClient.select().from(DB_SCHEMA.channels),
 			(error) => {
-				console.error(`DB QUERIES.getAllChannels: ${error}`);
+				console.error('DB QUERIES.getAllChannels:', error);
 				return new Error('Failed to get all channels');
 			}
 		);
@@ -36,7 +36,7 @@ export const DB_QUERIES = {
 		const channelsResult = await ResultAsync.fromPromise(
 			dbClient.select().from(DB_SCHEMA.channels),
 			(error) => {
-				console.error(`DB QUERIES.getChannelsWithStats: ${error}`);
+				console.error('DB QUERIES.getChannelsWithStats:', error);
 				return new Error('Failed to get channels');
 			}
 		);
@@ -66,7 +66,7 @@ export const DB_QUERIES = {
 							)
 						),
 					(error) => {
-						console.error(`DB QUERIES.getChannelsWithStats (stats): ${error}`);
+						console.error('DB QUERIES.getChannelsWithStats (stats):', error);
 						return new Error('Failed to get stats');
 					}
 				);
@@ -88,7 +88,7 @@ export const DB_QUERIES = {
 						.orderBy(desc(DB_SCHEMA.videos.publishedAt))
 						.limit(1),
 					(error) => {
-						console.error(`DB QUERIES.getChannelsWithStats (latestVideo): ${error}`);
+						console.error('DB QUERIES.getChannelsWithStats (latestVideo):', error);
 						return new Error('Failed to get latest video');
 					}
 				);
@@ -131,7 +131,7 @@ export const DB_QUERIES = {
 				.orderBy(desc(DB_SCHEMA.videos.publishedAt))
 				.limit(7),
 			(error) => {
-				console.error(`DB QUERIES.getLast7VideosByViews: ${error}`);
+				console.error('DB QUERIES.getLast7VideosByViews:', error);
 				return new Error('Failed to get last 7 videos');
 			}
 		);
@@ -143,7 +143,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.channels.ytChannelId, ytChannelId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getLast7VideosByViews (channel): ${error}`);
+				console.error('DB QUERIES.getLast7VideosByViews (channel):', error);
 				return new Error('Failed to get channel');
 			}
 		);
@@ -201,7 +201,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.channels.ytChannelId, ytChannelId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getChannelDetails: ${error}`);
+				console.error('DB QUERIES.getChannelDetails:', error);
 				return new Error('Failed to get channel details');
 			}
 		);
@@ -243,7 +243,7 @@ export const DB_QUERIES = {
 				.orderBy(desc(DB_SCHEMA.videos.publishedAt))
 				.limit(50),
 			(error) => {
-				console.error(`DB QUERIES.getChannelVideos: ${error}`);
+				console.error('DB QUERIES.getChannelVideos:', error);
 				return new Error('Failed to get channel videos');
 			}
 		);
@@ -284,7 +284,7 @@ export const DB_QUERIES = {
 				.orderBy(desc(DB_SCHEMA.notifications.createdAt))
 				.limit(50),
 			(error) => {
-				console.error(`DB QUERIES.getChannelNotifications: ${error}`);
+				console.error('DB QUERIES.getChannelNotifications:', error);
 				return new Error('Failed to get channel notifications');
 			}
 		);
@@ -330,7 +330,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.sponsors.ytChannelId, ytChannelId))
 				.groupBy(DB_SCHEMA.sponsors.sponsorId),
 			(error) => {
-				console.error(`DB QUERIES.getChannelSponsors: ${error}`);
+				console.error('DB QUERIES.getChannelSponsors:', error);
 				return new Error('Failed to get channel sponsors');
 			}
 		);
@@ -375,7 +375,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.sponsors.sponsorId, sponsorId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getSponsorDetails (sponsor): ${error}`);
+				console.error('DB QUERIES.getSponsorDetails (sponsor):', error);
 				return new Error('Failed to get sponsor');
 			}
 		);
@@ -393,7 +393,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.sponsorToVideos.sponsorId, sponsorId))
 				.orderBy(desc(DB_SCHEMA.videos.publishedAt)),
 			(error) => {
-				console.error(`DB QUERIES.getSponsorDetails (videos): ${error}`);
+				console.error('DB QUERIES.getSponsorDetails (videos):', error);
 				return new Error('Failed to get sponsor videos');
 			}
 		);
@@ -453,7 +453,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.videos.ytVideoId, ytVideoId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getVideoDetails (video): ${error}`);
+				console.error('DB QUERIES.getVideoDetails (video):', error);
 				return new Error('Failed to get video');
 			}
 		);
@@ -483,7 +483,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.channels.ytChannelId, video.ytChannelId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getVideoDetails (channel): ${error}`);
+				console.error('DB QUERIES.getVideoDetails (channel):', error);
 				return new Error('Failed to get channel');
 			}
 		);
@@ -501,7 +501,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.sponsorToVideos.ytVideoId, ytVideoId))
 				.limit(1),
 			(error) => {
-				console.error(`DB QUERIES.getVideoDetails (sponsor): ${error}`);
+				console.error('DB QUERIES.getVideoDetails (sponsor):', error);
 				return new Error('Failed to get sponsor');
 			}
 		);
@@ -513,7 +513,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.comments.ytVideoId, ytVideoId))
 				.orderBy(desc(DB_SCHEMA.comments.publishedAt)),
 			(error) => {
-				console.error(`DB QUERIES.getVideoDetails (comments): ${error}`);
+				console.error('DB QUERIES.getVideoDetails (comments):', error);
 				return new Error('Failed to get comments');
 			}
 		);
@@ -525,7 +525,7 @@ export const DB_QUERIES = {
 				.where(eq(DB_SCHEMA.notifications.ytVideoId, ytVideoId))
 				.orderBy(desc(DB_SCHEMA.notifications.createdAt)),
 			(error) => {
-				console.error(`DB QUERIES.getVideoDetails (notifications): ${error}`);
+				console.error('DB QUERIES.getVideoDetails (notifications):', error);
 				return new Error('Failed to get notifications');
 			}
 		);
