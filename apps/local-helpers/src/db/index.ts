@@ -1,3 +1,3 @@
-import { getDbConnection } from '@r8y/db';
+import { getDrizzleInstance } from '@r8y/db';
 
-export const dbClient = getDbConnection(Bun.env.DATABASE_URL!);
+export const dbClient = getDrizzleInstance(Bun.env.DATABASE_URL!);
