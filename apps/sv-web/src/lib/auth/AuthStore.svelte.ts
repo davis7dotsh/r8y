@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import { createContext, onMount } from 'svelte';
 import { remoteCheckAuth, remoteSignIn, remoteSignOut } from './auth.remote';
 
