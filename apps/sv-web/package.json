@@ -16,6 +16,7 @@
 	},
 	"dependencies": {
 		"@r8y/db": "*",
+		"effect": "^3.19.5",
 		"mode-watcher": "^1.1.0",
 		"neverthrow": "^8.2.0",
 		"runed": "^0.36.0",

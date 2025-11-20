@@ -1,6 +1,6 @@
 import { form, getRequestEvent, query } from '$app/server';
-import { DB_MUTATIONS } from '$lib/db/mutations';
-import { DB_QUERIES } from '$lib/db/queries';
+import { DB_MUTATIONS } from '$lib/legacy-db/mutations';
+import { DB_QUERIES } from '$lib/legacy-db/queries';
 import { error } from '@sveltejs/kit';
 import z from 'zod';
 
