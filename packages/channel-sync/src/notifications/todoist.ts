@@ -28,9 +28,16 @@ const todoistService = Effect.gen(function* () {
 				ytVideoId: string;
 				title: string;
 			},
-			sponsor: { name: string } | null
+			sponsor: { name: string } | null,
+			options?: { isBackfill?: boolean }
 		) =>
 			Effect.gen(function* () {
+				// Skip sending notification if this is a backfill operation
+				if (options?.isBackfill) {
+					yield* Effect.log('Skipping Todoist notification for backfill video');
+					return;
+				}
+
 				const videoUrl = `https://www.youtube.com/watch?v=${video.ytVideoId}`;
 
 				yield* Effect.tryPromise({

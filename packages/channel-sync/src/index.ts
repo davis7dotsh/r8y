@@ -21,7 +21,7 @@ const channelSyncService = Effect.gen(function* () {
 	const discord = yield* DiscordService;
 	const todoist = yield* TodoistService;
 
-	const syncVideo = (args: { ytVideoId: string }) =>
+	const syncVideo = (args: { ytVideoId: string; isBackfill?: boolean }) =>
 		Effect.gen(function* () {
 			const videoDetails = yield* youtube.getVideoDetails({ ytVideoId: args.ytVideoId });
 
@@ -90,14 +90,16 @@ const channelSyncService = Effect.gen(function* () {
 						ytVideoId: args.ytVideoId,
 						title: videoDetails.title
 					},
-					sponsor
+					sponsor,
+					{ isBackfill: args.isBackfill }
 				);
 				yield* todoist.sendVideoLiveToTodoist(
 					{
 						ytVideoId: args.ytVideoId,
 						title: videoDetails.title
 					},
-					sponsor
+					sponsor,
+					{ isBackfill: args.isBackfill }
 				);
 			}
 
@@ -213,9 +215,58 @@ const channelSyncService = Effect.gen(function* () {
 			yield* Console.log(`LIVE CRAWLER TOOK ${performance.now() - start}ms`);
 		});
 
+	const backfillChannel = (args: { ytChannelId: string }) =>
+		Effect.gen(function* () {
+			const start = performance.now();
+			yield* Console.log(`BACKFILL: Starting backfill for channel ${args.ytChannelId}`);
+
+			const channel = yield* db.getChannel(args.ytChannelId);
+			if (!channel) {
+				return yield* Effect.fail(new SyncVideoError('Channel not found'));
+			}
+
+			// Fetch up to 300 videos from the channel
+			const videoIds = yield* youtube.getVideosForChannel({
+				ytChannelId: args.ytChannelId,
+				maxResults: 300
+			});
+
+			yield* Console.log(`BACKFILL: Found ${videoIds.length} videos to backfill`);
+
+			let successCount = 0;
+			let errorCount = 0;
+
+			// Process each video with backfill flag set to true
+			yield* Effect.forEach(
+				videoIds,
+				(videoId) =>
+					Effect.gen(function* () {
+						console.log(`BACKFILL: Syncing video ${videoId}`);
+						const result = yield* syncVideo({ ytVideoId: videoId, isBackfill: true }).pipe(
+							Effect.either
+						);
+
+						if (result._tag === 'Right') {
+							successCount++;
+							console.log(`BACKFILL: Successfully synced video ${videoId}`);
+						} else {
+							errorCount++;
+							console.error(`BACKFILL: Failed to sync video ${videoId}`, result.left);
+						}
+					}),
+				{ concurrency: 5 }
+			);
+
+			yield* Console.log(
+				`BACKFILL COMPLETED: ${successCount} videos synced, ${errorCount} videos failed`
+			);
+			yield* Console.log(`BACKFILL TOOK ${performance.now() - start}ms`);
+		});
+
 	return {
 		syncVideo,
-		syncAllChannels
+		syncAllChannels,
+		backfillChannel
 	};
 });
 
