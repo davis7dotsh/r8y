@@ -24,7 +24,7 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href={`/app/channel/all`}>Channels</Breadcrumb.Link>
+					<Breadcrumb.Link href="/app">Channels</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>

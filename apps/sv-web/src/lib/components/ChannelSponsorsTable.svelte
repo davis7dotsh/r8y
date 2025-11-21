@@ -66,7 +66,7 @@
 						<tr class="hover:bg-muted/50">
 							<td class="px-6 py-4">
 								<a
-									href="/app/channel/{channelId}/sponsor/{sponsor.sponsorId}"
+									href="/app/view/sponsor?sponsorId={sponsor.sponsorId}&channelId={channelId}"
 									class="text-sm font-medium text-card-foreground transition-colors hover:text-primary"
 								>
 									{sponsor.name}

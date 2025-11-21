@@ -67,7 +67,7 @@
 					{#each sponsorData.videos as video}
 						<tr class="hover:bg-muted/50">
 							<td class="px-6 py-4">
-								<a href="/app/channel/{channelId}/video/{video.ytVideoId}">
+								<a href="/app/view/video?videoId={video.ytVideoId}&channelId={channelId}">
 									<img
 										src={video.thumbnailUrl}
 										alt={video.title}
@@ -77,7 +77,7 @@
 							</td>
 							<td class="px-6 py-4">
 								<a
-									href="/app/channel/{channelId}/video/{video.ytVideoId}"
+									href="/app/view/video?videoId={video.ytVideoId}&channelId={channelId}"
 									class="max-w-md truncate text-sm font-medium text-card-foreground transition-colors hover:text-primary"
 								>
 									{video.title}

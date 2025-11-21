@@ -11,7 +11,7 @@
 </script>
 
 <div class="flex items-center justify-between">
-	<a href={`/app/channel/${channelId}`}>
+	<a href={`/app/view/channel?channelId=${channelId}`}>
 		<h1 class="text-2xl font-bold">{selectedChannel?.name ?? 'Select Channel'}</h1>
 	</a>
 	<DropdownMenu.Root>
@@ -24,7 +24,7 @@
 		<DropdownMenu.Content class="min-w-[200px]">
 			{#each channels as channel}
 				<DropdownMenu.Item class={channelId === channel.ytChannelId ? 'bg-accent' : ''}>
-					<a href={`/app/channel/${channel.ytChannelId}`} class="w-full">
+					<a href={`/app/view/channel?channelId=${channel.ytChannelId}`} class="w-full">
 						{channel.name}
 					</a>
 				</DropdownMenu.Item>

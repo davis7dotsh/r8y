@@ -45,11 +45,11 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/app/channel/all">Channels</Breadcrumb.Link>
+					<Breadcrumb.Link href="/app">Channels</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/app/channel/{channelId}">{channel.name}</Breadcrumb.Link>
+					<Breadcrumb.Link href="/app/view/channel?channelId={channelId}">{channel.name}</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
@@ -81,7 +81,7 @@
 					<h2 class="text-sm font-medium text-muted-foreground">Channel</h2>
 					{#if videoData.channel}
 						<a
-							href="/app/channel/{videoData.channel.ytChannelId}"
+							href="/app/view/channel?channelId={videoData.channel.ytChannelId}"
 							class="mt-1 text-lg font-semibold text-foreground hover:text-primary"
 						>
 							{videoData.channel.name}
@@ -104,7 +104,7 @@
 					<div>
 						<h3 class="text-sm font-medium text-muted-foreground">Sponsor</h3>
 						<a
-							href="/app/channel/{channelId}/sponsor/{videoData.sponsor.sponsorId}"
+							href="/app/view/sponsor?sponsorId={videoData.sponsor.sponsorId}&channelId={channelId}"
 							class="mt-1 inline-flex items-center rounded-full px-3 py-1 font-medium text-primary ring-2 ring-primary transition-colors hover:bg-primary hover:text-primary-foreground"
 						>
 							{videoData.sponsor.name}

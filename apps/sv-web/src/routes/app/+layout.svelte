@@ -31,7 +31,7 @@
 		<nav
 			class="flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-1.5"
 		>
-			<Button href="/app/channel/all" variant="ghost">Home</Button>
+			<Button href="/app" variant="ghost">Home</Button>
 			<div class="flex gap-2">
 				<Button onclick={toggleMode} variant="outline" size="icon-sm">
 					{#if mode.current === 'dark'}

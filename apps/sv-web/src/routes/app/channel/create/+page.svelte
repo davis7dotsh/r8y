@@ -19,7 +19,7 @@
 				isCreating = true;
 				await submit();
 				form.reset();
-				await goto(`/app/channel/${data.ytChannelId}`);
+				await goto(`/app/view/channel?channelId=${data.ytChannelId}`);
 			} catch (error) {
 				console.error(error);
 			} finally {
