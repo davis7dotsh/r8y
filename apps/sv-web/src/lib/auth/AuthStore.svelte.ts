@@ -7,10 +7,10 @@ class AuthStore {
 
 	constructor() {
 		onMount(async () => {
-			const result = await remoteCheckAuth();
-			console.log('result', result);
+			const isAuthenticated = await remoteCheckAuth();
+			console.log('result', isAuthenticated);
 
-			this.isAuthenticated = result.isAuthenticated;
+			this.isAuthenticated = isAuthenticated;
 			this.isLoading = false;
 		});
 	}

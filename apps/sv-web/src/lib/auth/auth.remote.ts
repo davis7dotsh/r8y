@@ -1,16 +1,17 @@
 import { command, getRequestEvent } from '$app/server';
-import { env } from '$env/dynamic/private';
 import z from 'zod';
-import { checkAuth } from './helpers';
+import { remoteRunner } from '$lib/helper/endpoint';
+import { AuthService } from '.';
+import { Effect } from 'effect';
 
 export const remoteSignOut = command(async () => {
-	const event = getRequestEvent();
-	event.cookies.delete('authPassword', {
-		path: '/'
-	});
-	return {
-		success: true
-	};
+	return await remoteRunner(
+		Effect.gen(function* () {
+			const auth = yield* AuthService;
+			const event = yield* Effect.sync(() => getRequestEvent());
+			return yield* auth.signOut(event);
+		})
+	);
 });
 
 export const remoteSignIn = command(
@@ -18,30 +19,25 @@ export const remoteSignIn = command(
 		authPassword: z.string()
 	}),
 	async ({ authPassword }) => {
-		const event = getRequestEvent();
-
-		if (authPassword !== env.SECRET_PASSWORD) {
-			return {
-				success: false
-			};
-		}
-
-		event.cookies.set('authPassword', authPassword, {
-			path: '/',
-			httpOnly: true,
-			secure: true,
-			maxAge: 60 * 60 * 24 * 10000 // forever
-		});
-
-		return {
-			success: true
-		};
+		return await remoteRunner(
+			Effect.gen(function* () {
+				const auth = yield* AuthService;
+				const event = yield* Effect.sync(() => getRequestEvent());
+				return yield* auth.signIn({
+					event,
+					authPassword
+				});
+			})
+		);
 	}
 );
 
 export const remoteCheckAuth = command(async () => {
-	const event = getRequestEvent();
-	return {
-		isAuthenticated: checkAuth(event)
-	};
+	return await remoteRunner(
+		Effect.gen(function* () {
+			const event = yield* Effect.sync(() => getRequestEvent());
+			const auth = yield* AuthService;
+			return yield* auth.checkAuth(event);
+		})
+	);
 });

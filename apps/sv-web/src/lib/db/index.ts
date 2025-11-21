@@ -1,10 +1,23 @@
-import { DB_SCHEMA, getDrizzleInstance, eq, inArray, sql, type SQL } from '@r8y/db';
+import {
+	DB_SCHEMA,
+	getDrizzleInstance,
+	eq,
+	inArray,
+	sql,
+	type SQL,
+	desc,
+	and,
+	gte,
+	count,
+	sum,
+	max
+} from '@r8y/db';
 import { Effect } from 'effect';
 import { TaggedError } from 'effect/Data';
 import { randomBytes } from 'node:crypto';
 import { env } from '$env/dynamic/private';
 
-class DbError extends TaggedError('DbError') {
+export class DbError extends TaggedError('DbError') {
 	constructor(message: string, options?: { cause?: unknown }) {
 		super();
 		this.message = message;
@@ -23,7 +36,11 @@ const dbService = Effect.gen(function* () {
 
 	const drizzle = yield* Effect.acquireRelease(
 		Effect.try(() => getDrizzleInstance(dbUrl)),
-		(db) => Effect.sync(() => db.$client.end())
+		(db) =>
+			Effect.sync(() => {
+				console.log('Releasing database connection...');
+				db.$client.end();
+			})
 	).pipe(
 		Effect.catchAll((err) => {
 			console.error('Failed to connect to database...', err);
@@ -555,6 +572,405 @@ const dbService = Effect.gen(function* () {
 				}
 
 				return undefined;
+			}),
+
+		createChannel: (data: {
+			channelName: string;
+			findSponsorPrompt: string;
+			ytChannelId: string;
+		}) =>
+			Effect.gen(function* () {
+				yield* Effect.tryPromise({
+					try: () =>
+						drizzle.insert(DB_SCHEMA.channels).values({
+							name: data.channelName,
+							ytChannelId: data.ytChannelId,
+							findSponsorPrompt: data.findSponsorPrompt
+						}),
+					catch: (err) =>
+						new DbError('Failed to create channel', {
+							cause: err
+						})
+				});
+
+				return { success: true };
+			}),
+
+		getChannelsWithStats: () =>
+			Effect.gen(function* () {
+				const thirtyDaysAgo = new Date();
+				thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+				const channels = yield* Effect.tryPromise({
+					try: () => drizzle.select().from(DB_SCHEMA.channels),
+					catch: (err) =>
+						new DbError('Failed to get channels', {
+							cause: err
+						})
+				});
+
+				const results = yield* Effect.all(
+					channels.map((channel) =>
+						Effect.gen(function* () {
+							const stats = yield* Effect.tryPromise({
+								try: () =>
+									drizzle
+										.select({
+											videoCount: count(DB_SCHEMA.videos.ytVideoId),
+											totalViews: sum(DB_SCHEMA.videos.viewCount)
+										})
+										.from(DB_SCHEMA.videos)
+										.where(
+											and(
+												eq(DB_SCHEMA.videos.ytChannelId, channel.ytChannelId),
+												gte(DB_SCHEMA.videos.publishedAt, thirtyDaysAgo)
+											)
+										),
+								catch: (err) =>
+									new DbError('Failed to get stats', {
+										cause: err
+									})
+							}).pipe(Effect.map((res) => res[0] || { videoCount: 0, totalViews: 0 }));
+
+							const latestVideo = yield* Effect.tryPromise({
+								try: () =>
+									drizzle
+										.select({
+											ytVideoId: DB_SCHEMA.videos.ytVideoId,
+											title: DB_SCHEMA.videos.title,
+											viewCount: DB_SCHEMA.videos.viewCount
+										})
+										.from(DB_SCHEMA.videos)
+										.where(
+											and(
+												eq(DB_SCHEMA.videos.ytChannelId, channel.ytChannelId),
+												gte(DB_SCHEMA.videos.publishedAt, thirtyDaysAgo)
+											)
+										)
+										.orderBy(desc(DB_SCHEMA.videos.publishedAt))
+										.limit(1),
+								catch: (err) =>
+									new DbError('Failed to get latest video', {
+										cause: err
+									})
+							}).pipe(Effect.map((res) => res[0] || null));
+
+							return {
+								...channel,
+								videoCount: Number(stats.videoCount) || 0,
+								totalViews: Number(stats.totalViews) || 0,
+								latestVideo
+							};
+						})
+					),
+					{ concurrency: 'unbounded' }
+				);
+
+				return results;
+			}),
+
+		getLast7VideosByViews: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const videos = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								video: DB_SCHEMA.videos,
+								sponsor: DB_SCHEMA.sponsors
+							})
+							.from(DB_SCHEMA.videos)
+							.leftJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.ytVideoId, DB_SCHEMA.videos.ytVideoId)
+							)
+							.leftJoin(
+								DB_SCHEMA.sponsors,
+								eq(DB_SCHEMA.sponsors.sponsorId, DB_SCHEMA.sponsorToVideos.sponsorId)
+							)
+							.where(and(eq(DB_SCHEMA.videos.ytChannelId, ytChannelId)))
+							.orderBy(desc(DB_SCHEMA.videos.publishedAt))
+							.limit(7),
+					catch: (err) =>
+						new DbError('Failed to get last 7 videos', {
+							cause: err
+						})
+				});
+
+				const channel = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.channels)
+							.where(eq(DB_SCHEMA.channels.ytChannelId, ytChannelId))
+							.limit(1),
+					catch: (err) =>
+						new DbError('Failed to get channel', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res[0]));
+
+				if (!channel) {
+					return yield* Effect.fail(new DbError('Channel not found'));
+				}
+
+				const formattedVideos = videos.map((v) => ({
+					...v.video,
+					sponsor: v.sponsor || null
+				}));
+
+				const totalViews = formattedVideos.reduce((sum, v) => sum + v.viewCount, 0);
+
+				return {
+					channel,
+					videos: formattedVideos,
+					totalViews
+				};
+			}),
+
+		getChannelVideos: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const videos = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								video: DB_SCHEMA.videos,
+								sponsor: DB_SCHEMA.sponsors
+							})
+							.from(DB_SCHEMA.videos)
+							.leftJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.ytVideoId, DB_SCHEMA.videos.ytVideoId)
+							)
+							.leftJoin(
+								DB_SCHEMA.sponsors,
+								eq(DB_SCHEMA.sponsors.sponsorId, DB_SCHEMA.sponsorToVideos.sponsorId)
+							)
+							.where(eq(DB_SCHEMA.videos.ytChannelId, ytChannelId))
+							.orderBy(desc(DB_SCHEMA.videos.publishedAt))
+							.limit(50),
+					catch: (err) =>
+						new DbError('Failed to get channel videos', {
+							cause: err
+						})
+				});
+
+				return videos.map((v) => ({
+					...v.video,
+					sponsor: v.sponsor || null
+				}));
+			}),
+
+		getChannelNotifications: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const notifications = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								notification: DB_SCHEMA.notifications,
+								videoTitle: DB_SCHEMA.videos.title
+							})
+							.from(DB_SCHEMA.notifications)
+							.innerJoin(
+								DB_SCHEMA.videos,
+								eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.notifications.ytVideoId)
+							)
+							.where(eq(DB_SCHEMA.videos.ytChannelId, ytChannelId))
+							.orderBy(desc(DB_SCHEMA.notifications.createdAt))
+							.limit(50),
+					catch: (err) =>
+						new DbError('Failed to get channel notifications', {
+							cause: err
+						})
+				});
+
+				return notifications.map((n) => ({
+					...n.notification,
+					videoTitle: n.videoTitle
+				}));
+			}),
+
+		getChannelSponsors: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const sponsors = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								sponsor: DB_SCHEMA.sponsors,
+								totalViews: sum(DB_SCHEMA.videos.viewCount),
+								totalVideos: count(DB_SCHEMA.videos.ytVideoId),
+								lastVideoPublishedAt: max(DB_SCHEMA.videos.publishedAt)
+							})
+							.from(DB_SCHEMA.sponsors)
+							.leftJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.sponsorId, DB_SCHEMA.sponsors.sponsorId)
+							)
+							.leftJoin(
+								DB_SCHEMA.videos,
+								eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.sponsorToVideos.ytVideoId)
+							)
+							.where(eq(DB_SCHEMA.sponsors.ytChannelId, ytChannelId))
+							.groupBy(DB_SCHEMA.sponsors.sponsorId),
+					catch: (err) =>
+						new DbError('Failed to get channel sponsors', {
+							cause: err
+						})
+				});
+
+				return sponsors.map((s) => {
+					const lastPublishedAt = s.lastVideoPublishedAt ? new Date(s.lastVideoPublishedAt) : null;
+					const daysAgo = lastPublishedAt
+						? Math.floor((Date.now() - lastPublishedAt.getTime()) / (1000 * 60 * 60 * 24))
+						: null;
+
+					return {
+						...s.sponsor,
+						totalViews: Number(s.totalViews) || 0,
+						totalVideos: Number(s.totalVideos) || 0,
+						lastVideoPublishedAt: lastPublishedAt?.getTime() || null,
+						lastVideoPublishedDaysAgo: daysAgo
+					};
+				});
+			}),
+
+		getSponsorDetails: (sponsorId: string) =>
+			Effect.gen(function* () {
+				const sponsor = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.sponsors)
+							.where(eq(DB_SCHEMA.sponsors.sponsorId, sponsorId))
+							.limit(1),
+					catch: (err) =>
+						new DbError('Failed to get sponsor', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res[0]));
+
+				if (!sponsor) {
+					return yield* Effect.fail(new DbError('Sponsor not found'));
+				}
+
+				const videos = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								video: DB_SCHEMA.videos
+							})
+							.from(DB_SCHEMA.sponsorToVideos)
+							.innerJoin(
+								DB_SCHEMA.videos,
+								eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.sponsorToVideos.ytVideoId)
+							)
+							.where(eq(DB_SCHEMA.sponsorToVideos.sponsorId, sponsorId))
+							.orderBy(desc(DB_SCHEMA.videos.publishedAt)),
+					catch: (err) =>
+						new DbError('Failed to get sponsor videos', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res.map((v) => v.video)));
+
+				const totalViews = videos.reduce((sum, v) => sum + v.viewCount, 0);
+				const totalAds = videos.length;
+				const lastPublishDate =
+					videos.length > 0 ? (videos[0]?.publishedAt.getTime() ?? null) : null;
+
+				return {
+					sponsor,
+					videos,
+					stats: {
+						totalViews,
+						totalAds,
+						lastPublishDate
+					}
+				};
+			}),
+
+		getVideoDetails: (ytVideoId: string) =>
+			Effect.gen(function* () {
+				const video = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.videos)
+							.where(eq(DB_SCHEMA.videos.ytVideoId, ytVideoId))
+							.limit(1),
+					catch: (err) =>
+						new DbError('Failed to get video', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res[0]));
+
+				if (!video) {
+					return yield* Effect.fail(new DbError('Video not found'));
+				}
+
+				const channel = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.channels)
+							.where(eq(DB_SCHEMA.channels.ytChannelId, video.ytChannelId))
+							.limit(1),
+					catch: (err) =>
+						new DbError('Failed to get channel', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res[0] || null));
+
+				const sponsor = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								sponsor: DB_SCHEMA.sponsors
+							})
+							.from(DB_SCHEMA.sponsorToVideos)
+							.innerJoin(
+								DB_SCHEMA.sponsors,
+								eq(DB_SCHEMA.sponsors.sponsorId, DB_SCHEMA.sponsorToVideos.sponsorId)
+							)
+							.where(eq(DB_SCHEMA.sponsorToVideos.ytVideoId, ytVideoId))
+							.limit(1),
+					catch: (err) =>
+						new DbError('Failed to get sponsor', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => res[0]?.sponsor || null));
+
+				const comments = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.comments)
+							.where(eq(DB_SCHEMA.comments.ytVideoId, ytVideoId))
+							.orderBy(desc(DB_SCHEMA.comments.publishedAt)),
+					catch: (err) =>
+						new DbError('Failed to get comments', {
+							cause: err
+						})
+				});
+
+				const notifications = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.notifications)
+							.where(eq(DB_SCHEMA.notifications.ytVideoId, ytVideoId))
+							.orderBy(desc(DB_SCHEMA.notifications.createdAt)),
+					catch: (err) =>
+						new DbError('Failed to get notifications', {
+							cause: err
+						})
+				});
+
+				return {
+					video,
+					channel,
+					sponsor,
+					comments,
+					notifications
+				};
 			})
 	};
 });

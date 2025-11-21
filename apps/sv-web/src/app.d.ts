@@ -2,10 +2,12 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
-		interface Locals {
-			checkAuth: (event: RequestEvent) => boolean;
+		interface Error {
+			type: string;
+			message: string;
+			cause?: unknown;
 		}
+		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
