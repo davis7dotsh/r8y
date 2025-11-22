@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { Spinner } from '$lib/components/ui/spinner';
 	import ChannelsList from '$lib/components/ChannelsList.svelte';
 </script>
 

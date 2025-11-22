@@ -51,13 +51,28 @@
 		</Tabs.Root>
 	</div>
 	{#if tab === 'details'}
-		<div class="flex flex-col gap-8">
-			<ChannelVideos {channelId} />
-			<ChannelNotifications {channelId} />
-		</div>
+		<svelte:boundary>
+			{#snippet pending()}
+				<div></div>
+			{/snippet}
+			<div class="flex flex-col gap-8">
+				<ChannelVideos {channelId} />
+				<ChannelNotifications {channelId} />
+			</div>
+		</svelte:boundary>
 	{:else if tab === 'recent'}
-		<ChannelLastSevenVids {channelId} />
+		<svelte:boundary>
+			{#snippet pending()}
+				<div></div>
+			{/snippet}
+			<ChannelLastSevenVids {channelId} />
+		</svelte:boundary>
 	{:else if tab === 'sponsors'}
-		<ChannelSponsorsTable {channelId} />
+		<svelte:boundary>
+			{#snippet pending()}
+				<div></div>
+			{/snippet}
+			<ChannelSponsorsTable {channelId} />
+		</svelte:boundary>
 	{/if}
 </div>
