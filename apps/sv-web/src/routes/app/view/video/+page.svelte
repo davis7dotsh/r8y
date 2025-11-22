@@ -49,7 +49,9 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/app/view/channel?channelId={channelId}">{channel.name}</Breadcrumb.Link>
+					<Breadcrumb.Link href="/app/view/channel?channelId={channelId}"
+						>{channel.name}</Breadcrumb.Link
+					>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator />
 				<Breadcrumb.Item>
