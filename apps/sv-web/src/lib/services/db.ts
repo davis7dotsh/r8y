@@ -111,7 +111,15 @@ const dbService = Effect.gen(function* () {
 						})
 				});
 
-				return channels[0] || null;
+				if (!channels[0]) {
+					return yield* Effect.fail(
+						new DbError('Channel not found', {
+							cause: new Error('Channel not found')
+						})
+					);
+				}
+
+				return channels[0];
 			}),
 
 		getVideo: (ytVideoId: string) =>

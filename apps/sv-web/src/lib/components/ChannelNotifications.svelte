@@ -2,7 +2,7 @@
 	import { remoteGetChannelNotifications } from '$lib/remote/channels.remote';
 	import { Badge } from './ui/badge';
 
-	const { channelId } = $props<{ channelId: string }>();
+	const { channelId }: { channelId: string } = $props();
 
 	const notifications = $derived(await remoteGetChannelNotifications(channelId));
 
@@ -44,59 +44,58 @@
 			<div class="max-h-[600px] overflow-y-auto">
 				<table class="w-full">
 					<thead class="sticky top-0 z-10 border-b border-border bg-muted">
-					<tr>
-						<th
-							class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
-							>Type</th
-						>
-						<th
-							class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
-							>Status</th
-						>
-						<th
-							class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
-							>Message</th
-						>
-						<th
-							class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
-							>Video</th
-						>
-						<th
-							class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
-							>Time</th
-						>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-border">
-					{#each notifications as notification}
-						<tr class="hover:bg-muted/50">
-							<td class="px-6 py-4">
-								<Badge variant="secondary">
-									{getNotificationTypeLabel(notification.type)}
-								</Badge>
-							</td>
-							<td class="px-6 py-4">
-								<Badge variant={notification.success ? 'default' : 'destructive'}>
-									{notification.success ? 'Success' : 'Failed'}
-								</Badge>
-							</td>
-							<td class="px-6 py-4">
-								<p class="max-w-md text-sm text-card-foreground">{notification.message}</p>
-							</td>
-							<td class="px-6 py-4">
-								<p class="max-w-md truncate text-sm text-muted-foreground">
-									{notification.videoTitle}
-								</p>
-							</td>
-							<td class="px-6 py-4 text-sm text-muted-foreground"
-								>{formatRelativeTime(notification.createdAt)}</td
+						<tr>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+								>Type</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+								>Status</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+								>Message</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+								>Video</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+								>Time</th
 							>
 						</tr>
-					{/each}
+					</thead>
+					<tbody class="divide-y divide-border">
+						{#each notifications as notification}
+							<tr class="hover:bg-muted/50">
+								<td class="px-6 py-4">
+									<Badge variant="secondary">
+										{getNotificationTypeLabel(notification.type)}
+									</Badge>
+								</td>
+								<td class="px-6 py-4">
+									<Badge variant={notification.success ? 'default' : 'destructive'}>
+										{notification.success ? 'Success' : 'Failed'}
+									</Badge>
+								</td>
+								<td class="px-6 py-4">
+									<p class="max-w-md text-sm text-card-foreground">{notification.message}</p>
+								</td>
+								<td class="px-6 py-4">
+									<p class="max-w-md truncate text-sm text-muted-foreground">
+										{notification.videoTitle}
+									</p>
+								</td>
+								<td class="px-6 py-4 text-sm text-muted-foreground"
+									>{formatRelativeTime(notification.createdAt)}</td
+								>
+							</tr>
+						{/each}
 					</tbody>
 				</table>
 			</div>
 		</div>
-		{/if}
+	{/if}
 </div>
-

@@ -1,8 +1,20 @@
-import { AuthService } from '$lib/auth';
-import { DbError, DbService } from '$lib/db';
-import { AppError } from '$lib/shared/errors';
+import { DbError, DbService } from '$lib/services/db';
 import { error } from '@sveltejs/kit';
 import { Effect, Cause, ManagedRuntime, Layer } from 'effect';
+import { AuthError, AuthService } from '$lib/services/auth';
+import { TaggedError } from 'effect/Data';
+
+export class AppError extends TaggedError('AppError') {
+	status: number;
+	body: App.Error;
+	constructor(body: App.Error, status = 500) {
+		super();
+		this.message = body.message;
+		this.cause = body.cause;
+		this.body = body;
+		this.status = status;
+	}
+}
 
 const globalForRuntime = globalThis as unknown as {
 	client: ManagedRuntime.ManagedRuntime<DbService | AuthService, never> | undefined;
@@ -24,7 +36,7 @@ process.on('sveltekit:shutdown', async (reason) => {
 });
 
 export const remoteRunner = async <A>(
-	effect: Effect.Effect<A, AppError | DbError, DbService | AuthService>
+	effect: Effect.Effect<A, AuthError | DbError | AppError, DbService | AuthService>
 ) => {
 	const result = await effect.pipe(
 		Effect.catchTag('DbError', (err) =>
@@ -33,6 +45,17 @@ export const remoteRunner = async <A>(
 					type: 'db',
 					message: err.message
 				})
+			)
+		),
+		Effect.catchTag('AuthError', (err) =>
+			Effect.fail(
+				new AppError(
+					{
+						type: 'auth',
+						message: err.message
+					},
+					401
+				)
 			)
 		),
 		Effect.matchCause({

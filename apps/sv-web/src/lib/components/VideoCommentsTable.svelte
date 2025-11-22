@@ -3,11 +3,13 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 
-	const { videoData } = $props<{
+	const {
+		videoData
+	}: {
 		videoData: Awaited<
 			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetVideoDetails>
 		>;
-	}>();
+	} = $props();
 
 	let showQuestions = $state(false);
 	let showSponsorMentions = $state(false);

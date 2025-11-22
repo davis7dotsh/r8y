@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { setAuthStore } from '$lib/auth/AuthStore.svelte';
+	import { setAuthStore } from '$lib/stores/AuthStore.svelte';
 	import { ModeWatcher } from 'mode-watcher';
 
 	setAuthStore();

@@ -3,7 +3,9 @@
 	import { toggleMode } from 'mode-watcher';
 	import { mode } from 'mode-watcher';
 	import { Moon, Sun } from '@lucide/svelte';
-	import { getAuthStore } from '$lib/auth/AuthStore.svelte';
+	import { getAuthStore } from '$lib/stores/AuthStore.svelte';
+	import RootLoader from '$lib/components/RootLoader.svelte';
+	import AppError from '$lib/components/AppError.svelte';
 
 	const { children } = $props();
 
@@ -44,7 +46,15 @@
 		</nav>
 	{/if}
 
-	<main class="h-full w-full overflow-auto">
-		{@render children()}
-	</main>
+	<svelte:boundary>
+		{#snippet pending()}
+			<RootLoader />
+		{/snippet}
+		{#snippet failed(err, retryFn)}
+			<AppError {err} {retryFn} />
+		{/snippet}
+		<main class="h-full w-full overflow-auto">
+			{@render children()}
+		</main>
+	</svelte:boundary>
 </div>

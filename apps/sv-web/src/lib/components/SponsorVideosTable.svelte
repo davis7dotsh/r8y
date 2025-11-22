@@ -1,10 +1,13 @@
 <script lang="ts">
-	const { sponsorData, channelId } = $props<{
+	const {
+		sponsorData,
+		channelId
+	}: {
 		sponsorData: Awaited<
 			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetSponsorDetails>
 		>;
 		channelId: string;
-	}>();
+	} = $props();
 
 	const formatNumber = (num: number) => {
 		if (num >= 1000000) {

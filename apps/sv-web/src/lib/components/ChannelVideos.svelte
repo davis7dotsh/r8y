@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { remoteGetChannelVideos } from '$lib/remote/channels.remote';
 
-	const { channelId } = $props<{ channelId: string }>();
+	const { channelId }: { channelId: string } = $props();
 
 	const videos = $derived(await remoteGetChannelVideos(channelId));
 

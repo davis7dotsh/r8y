@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { remoteGetChannelSponsors } from '$lib/remote/channels.remote';
 
-	const { channelId } = $props<{ channelId: string }>();
+	const { channelId }: { channelId: string } = $props();
 
 	const sponsors = $derived(await remoteGetChannelSponsors(channelId));
 

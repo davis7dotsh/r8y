@@ -1,8 +1,8 @@
 import { command, getRequestEvent } from '$app/server';
 import z from 'zod';
-import { remoteRunner } from '$lib/helper/endpoint';
-import { AuthService } from '.';
 import { Effect } from 'effect';
+import { remoteRunner } from './helpers';
+import { AuthService } from '$lib/services/auth';
 
 export const remoteSignOut = command(async () => {
 	return await remoteRunner(

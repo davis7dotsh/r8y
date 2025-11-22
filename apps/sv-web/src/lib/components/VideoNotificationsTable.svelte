@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge/index.js';
 
-	const { videoData } = $props<{
-		videoData: Awaited<ReturnType<typeof import('$lib/remote/channels.remote').remoteGetVideoDetails>>;
-	}>();
+	const {
+		videoData
+	}: {
+		videoData: Awaited<
+			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetVideoDetails>
+		>;
+	} = $props();
 
 	const formatRelativeTime = (date: Date) => {
 		const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -87,4 +91,3 @@
 		</div>
 	{/if}
 </div>
-

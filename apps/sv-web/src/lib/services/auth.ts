@@ -1,7 +1,15 @@
 import { env } from '$env/dynamic/private';
-import { AppError } from '$lib/shared/errors';
 import type { RequestEvent } from '@sveltejs/kit';
 import { Effect } from 'effect';
+import { TaggedError } from 'effect/Data';
+
+export class AuthError extends TaggedError('AuthError') {
+	constructor(message: string, options?: { cause?: unknown }) {
+		super();
+		this.message = message;
+		this.cause = options?.cause;
+	}
+}
 
 const authService = Effect.gen(function* () {
 	const secretPassword = yield* Effect.sync(() => env.SECRET_PASSWORD);
@@ -16,15 +24,7 @@ const authService = Effect.gen(function* () {
 		Effect.gen(function* () {
 			const isAuthenticated = yield* checkAuth(event);
 			if (!isAuthenticated) {
-				yield* Effect.fail(
-					new AppError(
-						{
-							type: 'auth',
-							message: 'Unauthorized'
-						},
-						401
-					)
-				);
+				yield* Effect.fail(new AuthError('you are not authenticated'));
 			}
 		});
 

@@ -1,5 +1,5 @@
 import { createContext, onMount } from 'svelte';
-import { remoteCheckAuth, remoteSignIn, remoteSignOut } from './auth.remote';
+import { remoteCheckAuth, remoteSignIn, remoteSignOut } from '../remote/auth.remote';
 
 class AuthStore {
 	isAuthenticated = $state(false);

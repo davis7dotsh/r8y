@@ -23,17 +23,5 @@
 		<Button href="/app/channel/create">+ Add Channel</Button>
 	</div>
 
-	<svelte:boundary>
-		{#snippet pending()}
-			<div class="flex items-center justify-center rounded-lg border border-border bg-muted p-8">
-				<Spinner class="size-6 text-muted-foreground" />
-			</div>
-		{/snippet}
-		{#snippet failed()}
-			<div class="flex items-center justify-center rounded-lg border border-border bg-muted p-8">
-				<p class="text-muted-foreground">Failed to load channels</p>
-			</div>
-		{/snippet}
-		<ChannelsList />
-	</svelte:boundary>
+	<ChannelsList />
 </div>

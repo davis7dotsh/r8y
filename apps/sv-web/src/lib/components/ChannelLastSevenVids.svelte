@@ -82,7 +82,8 @@
 							<td class="px-6 py-4 text-sm text-card-foreground">
 								{#if video.sponsor}
 									<a
-										href="/app/view/sponsor?sponsorId={video.sponsor.sponsorId}&channelId={channelId}"
+										href="/app/view/sponsor?sponsorId={video.sponsor
+											.sponsorId}&channelId={channelId}"
 										class="inline-flex items-center rounded-full px-3 py-1 font-medium text-primary ring-2 ring-primary transition-colors hover:bg-primary hover:text-primary-foreground"
 									>
 										{video.sponsor.name}

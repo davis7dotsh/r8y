@@ -1,10 +1,9 @@
 import { form, getRequestEvent, query } from '$app/server';
-import { AuthService } from '$lib/auth';
-import { DbService } from '$lib/db';
-import { remoteRunner } from '$lib/helper/endpoint';
-import { AppError } from '$lib/shared/errors';
 import { Effect } from 'effect';
 import z from 'zod';
+import { remoteRunner } from './helpers';
+import { AuthService } from '$lib/services/auth';
+import { DbService } from '$lib/services/db';
 
 export const remoteGetAllChannels = query(async () => {
 	const result = await remoteRunner(
@@ -89,10 +88,6 @@ export const remoteGetChannelDetails = query(z.string(), async (ytChannelId) => 
 			yield* auth.checkAuthAndFail(event);
 
 			const channel = yield* db.getChannel(ytChannelId);
-
-			if (!channel) {
-				return yield* Effect.fail(new AppError({ message: 'Channel not found', type: 'db' }, 404));
-			}
 
 			return yield* Effect.succeed(channel);
 		})
