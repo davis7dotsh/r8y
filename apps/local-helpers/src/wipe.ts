@@ -29,8 +29,6 @@ const main = async () => {
 	console.log('Wiped comments');
 	await dbClient.delete(DB_SCHEMA.notifications);
 	console.log('Wiped notifications');
-	await dbClient.delete(DB_SCHEMA.channels);
-	console.log('Wiped channels');
 	console.log('DB tables wiped successfully');
 };
 

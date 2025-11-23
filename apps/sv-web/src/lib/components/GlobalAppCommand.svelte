@@ -6,7 +6,6 @@
 	import { remoteSearchVideosAndSponsors } from '$lib/remote/channels.remote';
 
 	let open = $state(false);
-
 	let value = $state('');
 
 	const searchParamsSchema = z.object({
@@ -23,27 +22,8 @@
 			searchQuery: value
 		})
 	);
-
-	$inspect(searchResults);
-
-	const results = $derived.by(() => {
-		if (value.length > 0) {
-			return [
-				{
-					name: 'Sponsor 1',
-					url: 'https://example.com/sponsor1'
-				},
-				{
-					name: 'Sponsor 2',
-					url: 'https://example.com/sponsor2'
-				}
-			];
-		} else {
-			return [];
-		}
-	});
-
-	$inspect(results);
+	const videoResults = $derived(searchResults.videos);
+	const sponsorResults = $derived(searchResults.sponsors);
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -65,10 +45,21 @@
 </Button>
 
 {#snippet SearchResults()}
-	{#if results.length > 0}
+	{#if videoResults.length > 0}
+		<Command.Group heading="Videos">
+			{#each videoResults as video}
+				<Command.LinkItem href="/app/view/video?channelId={channelId}&videoId={video.ytVideoId}">
+					{video.title}
+				</Command.LinkItem>
+			{/each}
+		</Command.Group>
+	{/if}
+	{#if sponsorResults.length > 0}
 		<Command.Group heading="Sponsors">
-			{#each results as sponsor}
-				<Command.LinkItem href={sponsor.url}>
+			{#each sponsorResults as sponsor}
+				<Command.LinkItem
+					href="/app/view/sponsor?channelId={channelId}&sponsorId={sponsor.sponsorId}"
+				>
 					{sponsor.name}
 				</Command.LinkItem>
 			{/each}
@@ -77,7 +68,7 @@
 {/snippet}
 
 <Command.Dialog bind:open>
-	<Command.Input placeholder="Type a command or search..." bind:value />
+	<Command.Input placeholder="Search for a video or sponsor..." bind:value />
 	<Command.List>
 		<Command.Empty>No results found.</Command.Empty>
 
