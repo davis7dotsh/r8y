@@ -48,7 +48,10 @@
 	{#if videoResults.length > 0}
 		<Command.Group heading="Videos">
 			{#each videoResults as video}
-				<Command.LinkItem href="/app/view/video?channelId={channelId}&videoId={video.ytVideoId}">
+				<Command.LinkItem
+					href="/app/view/video?channelId={channelId}&videoId={video.ytVideoId}"
+					value={video.title}
+				>
 					{video.title}
 				</Command.LinkItem>
 			{/each}
@@ -59,6 +62,7 @@
 			{#each sponsorResults as sponsor}
 				<Command.LinkItem
 					href="/app/view/sponsor?channelId={channelId}&sponsorId={sponsor.sponsorId}"
+					value={sponsor.name}
 				>
 					{sponsor.name}
 				</Command.LinkItem>
@@ -70,8 +74,6 @@
 <Command.Dialog bind:open>
 	<Command.Input placeholder="Search for a video or sponsor..." bind:value />
 	<Command.List>
-		<Command.Empty>No results found.</Command.Empty>
-
 		{@render SearchResults()}
 	</Command.List>
 </Command.Dialog>

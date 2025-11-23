@@ -22,7 +22,7 @@ const globalForRuntime = globalThis as unknown as {
 };
 
 const getRuntime = () => {
-	if (!globalForRuntime.client || dev) {
+	if (!globalForRuntime.client) {
 		globalForRuntime.client = ManagedRuntime.make(
 			Layer.mergeAll(DbService.Default, AuthService.Default)
 		);
