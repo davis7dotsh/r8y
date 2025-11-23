@@ -159,6 +159,35 @@ export const remoteGetSponsorDetails = query(z.string(), async (sponsorId) => {
 	);
 });
 
+export const remoteSearchVideosAndSponsors = query(
+	z.object({
+		searchQuery: z.string(),
+		channelId: z.string()
+	}),
+	async (args) => {
+		return await remoteRunner(
+			Effect.gen(function* () {
+				const auth = yield* AuthService;
+				const db = yield* DbService;
+
+				const event = yield* Effect.sync(() => getRequestEvent());
+				yield* auth.checkAuthAndFail(event);
+
+				if (!args.searchQuery || !args.channelId) {
+					return {
+						videos: [],
+						sponsors: []
+					};
+				}
+
+				const result = yield* db.searchVideosAndSponsors(args);
+
+				return yield* Effect.succeed(result);
+			})
+		);
+	}
+);
+
 export const remoteGetVideoDetails = query(z.string(), async (ytVideoId) => {
 	return await remoteRunner(
 		Effect.gen(function* () {

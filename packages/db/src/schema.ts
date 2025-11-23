@@ -13,7 +13,7 @@ export const videos = table(
 	{
 		ytVideoId: t.varchar('yt_video_id', { length: 55 }).primaryKey(),
 		ytChannelId: t.varchar('yt_channel_id', { length: 55 }).notNull(),
-		title: t.text('title').notNull(),
+		title: t.varchar('title', { length: 255 }).notNull(),
 		description: t.text('description').notNull(),
 		thumbnailUrl: t.text('thumbnail_url').notNull(),
 		publishedAt: t.datetime('published_at').notNull(),
@@ -22,7 +22,10 @@ export const videos = table(
 		commentCount: t.int('comment_count').notNull(),
 		createdAt: t.timestamp('created_at').notNull().defaultNow()
 	},
-	(table) => [t.index('yt_channel_id_and_published_at').on(table.ytChannelId, table.publishedAt)]
+	(table) => [
+		t.index('yt_channel_id_and_published_at').on(table.ytChannelId, table.publishedAt),
+		t.index('videos_channel_title_search').on(table.ytChannelId, table.title)
+	]
 );
 
 export const comments = table(
@@ -54,12 +57,14 @@ export const sponsors = table(
 		sponsorId: t.varchar('sponsor_id', { length: 55 }).primaryKey(),
 		ytChannelId: t.varchar('yt_channel_id', { length: 55 }).notNull(),
 		sponsorKey: t.varchar('sponsor_key', { length: 255 }).notNull(),
-		name: t.text('name').notNull(),
+		name: t.varchar('name', { length: 255 }).notNull(),
 		createdAt: t.timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [
 		t.index('yt_channel_id').on(table.ytChannelId),
-		t.index('sponsor_key').on(table.sponsorKey)
+		t.index('sponsor_key').on(table.sponsorKey),
+		t.index('sponsors_channel_key_search').on(table.ytChannelId, table.sponsorKey),
+		t.index('sponsors_name_search').on(table.ytChannelId, table.name)
 	]
 );
 

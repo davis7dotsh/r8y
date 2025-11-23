@@ -6,6 +6,7 @@
 	import { getAuthStore } from '$lib/stores/AuthStore.svelte';
 	import RootLoader from '$lib/components/RootLoader.svelte';
 	import AppError from '$lib/components/AppError.svelte';
+	import GlobalAppCommand from '$lib/components/GlobalAppCommand.svelte';
 
 	const { children } = $props();
 
@@ -18,7 +19,13 @@
 			class="flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-1.5"
 		>
 			<Button href="/app" variant="ghost">All Channels</Button>
-			<div class="flex gap-2">
+			<div class="flex flex-row items-center justify-end gap-2">
+				<svelte:boundary>
+					{#snippet pending()}
+						<div></div>
+					{/snippet}
+					<GlobalAppCommand />
+				</svelte:boundary>
 				<Button onclick={toggleMode} variant="outline" size="icon-sm">
 					{#if mode.current === 'dark'}
 						<Sun />

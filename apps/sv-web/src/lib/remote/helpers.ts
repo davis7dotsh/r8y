@@ -3,6 +3,7 @@ import { error } from '@sveltejs/kit';
 import { Effect, Cause, ManagedRuntime, Layer } from 'effect';
 import { AuthError, AuthService } from '$lib/services/auth';
 import { TaggedError } from 'effect/Data';
+import { dev } from '$app/environment';
 
 export class AppError extends TaggedError('AppError') {
 	status: number;
@@ -21,7 +22,7 @@ const globalForRuntime = globalThis as unknown as {
 };
 
 const getRuntime = () => {
-	if (!globalForRuntime.client) {
+	if (!globalForRuntime.client || dev) {
 		globalForRuntime.client = ManagedRuntime.make(
 			Layer.mergeAll(DbService.Default, AuthService.Default)
 		);
@@ -43,7 +44,8 @@ export const remoteRunner = async <A>(
 			Effect.fail(
 				new AppError({
 					type: 'db',
-					message: err.message
+					message: err.message,
+					cause: err.cause
 				})
 			)
 		),
@@ -52,7 +54,8 @@ export const remoteRunner = async <A>(
 				new AppError(
 					{
 						type: 'auth',
-						message: err.message
+						message: err.message,
+						cause: err.cause
 					},
 					401
 				)
@@ -71,7 +74,7 @@ export const remoteRunner = async <A>(
 				if (failures.length > 0) {
 					failures.forEach((failure) => {
 						console.error(failure.toString());
-						console.error(failure.cause);
+						console.error('CAUSE', failure.cause);
 					});
 					const first = failures[0];
 					if (first) {

@@ -2,6 +2,7 @@ import {
 	DB_SCHEMA,
 	getDrizzleInstance,
 	eq,
+	or,
 	inArray,
 	sql,
 	type SQL,
@@ -10,7 +11,8 @@ import {
 	gte,
 	count,
 	sum,
-	max
+	max,
+	like
 } from '@r8y/db';
 import { Effect } from 'effect';
 import { TaggedError } from 'effect/Data';
@@ -893,6 +895,59 @@ const dbService = Effect.gen(function* () {
 						totalAds,
 						lastPublishDate
 					}
+				};
+			}),
+
+		searchVideosAndSponsors: (args: { searchQuery: string; channelId: string }) =>
+			Effect.gen(function* () {
+				const { searchQuery, channelId } = args;
+
+				const videosEffect = Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.videos)
+							.where(
+								and(
+									or(
+										like(DB_SCHEMA.videos.title, `%${searchQuery}%`),
+										like(DB_SCHEMA.videos.ytVideoId, `%${searchQuery}%`)
+									),
+									eq(DB_SCHEMA.videos.ytChannelId, channelId)
+								)
+							)
+							.limit(4),
+					catch: (err) =>
+						new DbError('Failed to search videos', {
+							cause: err
+						})
+				});
+
+				const sponsorsEffect = Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select()
+							.from(DB_SCHEMA.sponsors)
+							.where(
+								and(
+									or(like(DB_SCHEMA.sponsors.sponsorKey, `%${searchQuery}%`)),
+									eq(DB_SCHEMA.sponsors.ytChannelId, channelId)
+								)
+							)
+							.limit(4),
+					catch: (err) =>
+						new DbError(`Failed to search sponsors ${err}`, {
+							cause: err
+						})
+				});
+
+				const [videos, sponsors] = yield* Effect.all([videosEffect, sponsorsEffect], {
+					concurrency: 'unbounded'
+				});
+
+				return {
+					videos,
+					sponsors
 				};
 			}),
 
