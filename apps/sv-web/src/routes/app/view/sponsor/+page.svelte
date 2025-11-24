@@ -3,6 +3,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SponsorStats from '$lib/components/SponsorStats.svelte';
 	import SponsorVideosTable from '$lib/components/SponsorVideosTable.svelte';
+	import SponsorMentionsTable from '$lib/components/SponsorMentionsTable.svelte';
 	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
 	import z from 'zod';
 	import { useSearchParams } from 'runed/kit';
@@ -19,6 +20,8 @@
 
 	const sponsor = $derived(await remoteGetSponsorDetails(sponsorId));
 	const channel = $derived(await remoteGetChannelDetails(channelId));
+
+	$inspect(sponsor);
 </script>
 
 <div class="flex flex-col gap-4 p-8">
@@ -55,8 +58,9 @@
 		</div>
 	</div>
 
+	<SponsorStats sponsorData={sponsor} />
 	<div class="space-y-8">
-		<SponsorStats sponsorData={sponsor} />
 		<SponsorVideosTable sponsorData={sponsor} {channelId} />
+		<SponsorMentionsTable sponsorData={sponsor} {channelId} />
 	</div>
 </div>

@@ -2,7 +2,7 @@
 	import z from 'zod';
 	import Button from './ui/button/button.svelte';
 	import { useSearchParams } from 'runed/kit';
-	import { remoteGetAllChannels, remoteSearchVideosAndSponsors } from '$lib/remote/channels.remote';
+	import { remoteSearchVideosAndSponsors } from '$lib/remote/channels.remote';
 	import * as Command from '$lib/components/ui/command/index.js';
 
 	let open = $state(false);

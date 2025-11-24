@@ -882,6 +882,38 @@ const dbService = Effect.gen(function* () {
 						})
 				}).pipe(Effect.map((res) => res.map((v) => v.video)));
 
+				const videoIds = videos.map((v) => v.ytVideoId);
+
+				const sponsorMentionComments =
+					videoIds.length > 0
+						? yield* Effect.tryPromise({
+								try: () =>
+									drizzle
+										.select({
+											comment: DB_SCHEMA.comments,
+											videoTitle: DB_SCHEMA.videos.title
+										})
+										.from(DB_SCHEMA.comments)
+										.innerJoin(
+											DB_SCHEMA.videos,
+											eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.comments.ytVideoId)
+										)
+										.where(
+											and(
+												inArray(DB_SCHEMA.comments.ytVideoId, videoIds),
+												eq(DB_SCHEMA.comments.isSponsorMention, true)
+											)
+										)
+										.orderBy(desc(DB_SCHEMA.comments.publishedAt)),
+								catch: (err) =>
+									new DbError('Failed to get sponsor mention comments', {
+										cause: err
+									})
+							}).pipe(
+								Effect.map((res) => res.map((r) => ({ ...r.comment, videoTitle: r.videoTitle })))
+							)
+						: [];
+
 				const totalViews = videos.reduce((sum, v) => sum + v.viewCount, 0);
 				const totalAds = videos.length;
 				const lastPublishDate =
@@ -890,6 +922,7 @@ const dbService = Effect.gen(function* () {
 				return {
 					sponsor,
 					videos,
+					sponsorMentionComments,
 					stats: {
 						totalViews,
 						totalAds,

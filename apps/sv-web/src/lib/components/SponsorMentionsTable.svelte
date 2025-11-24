@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ExternalLink } from '@lucide/svelte';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -25,16 +26,6 @@
 		channelId: string;
 	} = $props();
 
-	const formatNumber = (num: number) => {
-		if (num >= 1000000) {
-			return (num / 1000000).toFixed(1) + 'M';
-		}
-		if (num >= 1000) {
-			return (num / 1000).toFixed(1) + 'K';
-		}
-		return num.toString();
-	};
-
 	const formatDate = (date: Date | string) => {
 		const d = new Date(date);
 		return d.toLocaleDateString('en-US', {
@@ -44,53 +35,60 @@
 		});
 	};
 
-	type Video = (typeof sponsorData.videos)[number];
+	const getYouTubeCommentUrl = (videoId: string, commentId: string) => {
+		return `https://www.youtube.com/watch?v=${videoId}&lc=${commentId}`;
+	};
 
-	const columns: ColumnDef<Video>[] = [
+	type Comment = (typeof sponsorData.sponsorMentionComments)[number];
+
+	const columns: ColumnDef<Comment>[] = [
 		{
-			accessorKey: 'thumbnailUrl',
-			header: 'Thumbnail',
+			accessorKey: 'text',
+			header: 'Comment',
+			size: 400,
 			cell: ({ row }) => {
-				const snippet = createRawSnippet<[{ video: Video; channelId: string }]>((params) => {
-					const { video, channelId } = params();
+				const snippet = createRawSnippet<[{ text: string }]>((params) => {
+					const { text } = params();
+					const escaped = text
+						.replace(/&/g, '&amp;')
+						.replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;')
+						.replace(/"/g, '&quot;');
 					return {
 						render: () =>
-							`<a href="/app/view/video?videoId=${video.ytVideoId}&channelId=${channelId}"><img src="${video.thumbnailUrl}" alt="${video.title}" class="h-12 w-20 rounded object-cover transition-opacity hover:opacity-80" /></a>`
+							`<p class="text-sm text-card-foreground whitespace-normal break-words" title="${escaped}">${escaped}</p>`
 					};
 				});
-				return renderSnippet(snippet, { video: row.original, channelId });
+				return renderSnippet(snippet, { text: row.original.text });
 			}
 		},
 		{
-			accessorKey: 'title',
-			header: 'Title',
+			accessorKey: 'videoTitle',
+			header: 'Video',
+			size: 180,
 			cell: ({ row }) => {
-				const snippet = createRawSnippet<[{ video: Video; channelId: string }]>((params) => {
-					const { video, channelId } = params();
+				const snippet = createRawSnippet<[{ comment: Comment; channelId: string }]>((params) => {
+					const { comment, channelId } = params();
 					return {
 						render: () =>
-							`<a href="/app/view/video?videoId=${video.ytVideoId}&channelId=${channelId}" class="max-w-md truncate text-sm font-medium text-card-foreground transition-colors hover:text-primary block">${video.title}</a>`
+							`<a href="/app/view/video?videoId=${comment.ytVideoId}&channelId=${channelId}" class="text-sm font-medium text-card-foreground transition-colors hover:text-primary block truncate" title="${comment.videoTitle}">${comment.videoTitle}</a>`
 					};
 				});
-				return renderSnippet(snippet, { video: row.original, channelId });
+				return renderSnippet(snippet, { comment: row.original, channelId });
 			}
 		},
 		{
-			accessorKey: 'viewCount',
-			header: ({ column }) =>
-				renderComponent(DataTableColumnHeader, {
-					title: 'Views',
-					isSorted: column.getIsSorted(),
-					onclick: column.getToggleSortingHandler()
-				}),
+			accessorKey: 'author',
+			header: 'Author',
+			size: 140,
 			cell: ({ row }) => {
-				const snippet = createRawSnippet<[{ views: number }]>((params) => {
-					const { views } = params();
+				const snippet = createRawSnippet<[{ author: string }]>((params) => {
+					const { author } = params();
 					return {
-						render: () => `<div class="text-sm text-muted-foreground">${formatNumber(views)}</div>`
+						render: () => `<div class="text-sm text-muted-foreground truncate">${author}</div>`
 					};
 				});
-				return renderSnippet(snippet, { views: row.original.viewCount });
+				return renderSnippet(snippet, { author: row.original.author });
 			}
 		},
 		{
@@ -101,11 +99,12 @@
 					isSorted: column.getIsSorted(),
 					onclick: column.getToggleSortingHandler()
 				}),
+			size: 80,
 			cell: ({ row }) => {
 				const snippet = createRawSnippet<[{ likes: number }]>((params) => {
 					const { likes } = params();
 					return {
-						render: () => `<div class="text-sm text-muted-foreground">${formatNumber(likes)}</div>`
+						render: () => `<div class="text-sm text-muted-foreground">${likes}</div>`
 					};
 				});
 				return renderSnippet(snippet, { likes: row.original.likeCount });
@@ -115,10 +114,11 @@
 			accessorKey: 'publishedAt',
 			header: ({ column }) =>
 				renderComponent(DataTableColumnHeader, {
-					title: 'Published',
+					title: 'Date',
 					isSorted: column.getIsSorted(),
 					onclick: column.getToggleSortingHandler()
 				}),
+			size: 100,
 			cell: ({ row }) => {
 				const snippet = createRawSnippet<[{ date: Date | string }]>((params) => {
 					const { date } = params();
@@ -129,6 +129,25 @@
 				return renderSnippet(snippet, { date: row.original.publishedAt });
 			},
 			sortingFn: 'datetime'
+		},
+		{
+			id: 'link',
+			header: 'Link',
+			size: 60,
+			cell: ({ row }) => {
+				const snippet = createRawSnippet<[{ videoId: string; commentId: string }]>((params) => {
+					const { videoId, commentId } = params();
+					const url = getYouTubeCommentUrl(videoId, commentId);
+					return {
+						render: () =>
+							`<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center text-primary hover:underline"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>`
+					};
+				});
+				return renderSnippet(snippet, {
+					videoId: row.original.ytVideoId,
+					commentId: row.original.ytCommentId
+				});
+			}
 		}
 	];
 
@@ -136,7 +155,7 @@
 
 	const table = createSvelteTable({
 		get data() {
-			return sponsorData.videos;
+			return sponsorData.sponsorMentionComments;
 		},
 		columns,
 		state: {
@@ -157,20 +176,20 @@
 </script>
 
 <div>
-	<h2 class="mb-4 text-xl font-semibold text-foreground">Videos</h2>
-	{#if sponsorData.videos.length === 0}
+	<h2 class="mb-4 text-xl font-semibold text-foreground">Sponsor Mentions</h2>
+	{#if sponsorData.sponsorMentionComments.length === 0}
 		<div class="rounded-lg border border-border bg-muted p-8">
-			<p class="text-center text-muted-foreground">No videos found</p>
+			<p class="text-center text-muted-foreground">No sponsor mentions found</p>
 		</div>
 	{:else}
 		<div class="max-h-[500px] overflow-hidden rounded-lg border border-border bg-card">
 			<div class="max-h-[500px] overflow-y-auto">
-				<Table.Root>
+				<Table.Root style="width: fit-content; min-width: 100%;">
 					<Table.Header class="sticky top-0 z-10 bg-muted">
 						{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 							<Table.Row>
 								{#each headerGroup.headers as header (header.id)}
-									<Table.Head>
+									<Table.Head style="width: {header.getSize()}px; min-width: {header.getSize()}px;">
 										{#if !header.isPlaceholder}
 											<FlexRender
 												content={header.column.columnDef.header}
@@ -186,7 +205,9 @@
 						{#each table.getRowModel().rows as row (row.id)}
 							<Table.Row data-state={row.getIsSelected() && 'selected'}>
 								{#each row.getVisibleCells() as cell (cell.id)}
-									<Table.Cell>
+									<Table.Cell
+										style="width: {cell.column.getSize()}px; min-width: {cell.column.getSize()}px;"
+									>
 										<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 									</Table.Cell>
 								{/each}
