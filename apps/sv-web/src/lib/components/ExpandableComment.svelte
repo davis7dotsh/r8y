@@ -23,7 +23,7 @@
 <div class="min-w-0">
 	<button
 		type="button"
-		class="block w-full rounded-sm text-left text-sm break-words text-foreground transition-colors {isOverflowing ||
+		class="block w-full rounded-sm text-left text-sm wrap-break-word text-foreground transition-colors {isOverflowing ||
 		expanded
 			? 'cursor-pointer hover:bg-muted'
 			: ''}"
