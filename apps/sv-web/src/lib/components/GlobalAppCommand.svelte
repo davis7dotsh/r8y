@@ -14,8 +14,6 @@
 
 	const params = useSearchParams(searchParamsSchema);
 
-	const allChannels = await remoteGetAllChannels();
-
 	const channelId = $derived(params.channelId);
 
 	const searchResults = $derived(
@@ -60,6 +58,13 @@
 			>
 				SPONSOR: {item.data.name}
 			</Command.LinkItem>
+		{:else if item.type === 'channel'}
+			<Command.LinkItem
+				href="/app/view/channel?channelId={item.data.ytChannelId}"
+				onSelect={closeDialog}
+			>
+				CHANNEL: {item.data.name}
+			</Command.LinkItem>
 		{:else}
 			<Command.LinkItem
 				href="/app/view/video?channelId={channelId}&videoId={item.data.ytVideoId}"
@@ -84,19 +89,6 @@
 		bind:value
 	/>
 	<Command.List>
-		{#if !channelId}
-			<Command.Group heading="Channels">
-				{#each allChannels as channel}
-					<Command.LinkItem
-						href="/app/view/channel?channelId={channel.ytChannelId}"
-						onSelect={closeDialog}
-					>
-						{channel.name}
-					</Command.LinkItem>
-				{/each}
-			</Command.Group>
-		{:else}
-			{@render Results()}
-		{/if}
+		{@render Results()}
 	</Command.List>
 </Command.Dialog>

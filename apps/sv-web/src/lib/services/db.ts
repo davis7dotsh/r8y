@@ -931,6 +931,32 @@ const dbService = Effect.gen(function* () {
 					)
 				);
 
+				const channelsEffect = pipe(
+					Effect.tryPromise({
+						try: () =>
+							drizzle
+								.select()
+								.from(DB_SCHEMA.channels)
+								.where(
+									or(
+										like(DB_SCHEMA.channels.name, `%${searchQuery}%`),
+										like(DB_SCHEMA.channels.ytChannelId, `%${searchQuery}%`)
+									)
+								)
+								.limit(4),
+						catch: (err) =>
+							new DbError(`Failed to search channels ${err}`, {
+								cause: err
+							})
+					}),
+					Effect.map((channels) =>
+						Array.map(channels, (channel) => ({
+							type: 'channel' as const,
+							data: channel
+						}))
+					)
+				);
+
 				const sponsorsEffect = pipe(
 					Effect.tryPromise({
 						try: () =>
@@ -939,7 +965,10 @@ const dbService = Effect.gen(function* () {
 								.from(DB_SCHEMA.sponsors)
 								.where(
 									and(
-										or(like(DB_SCHEMA.sponsors.sponsorKey, `%${searchQuery}%`)),
+										or(
+											like(DB_SCHEMA.sponsors.sponsorKey, `%${searchQuery}%`),
+											like(DB_SCHEMA.sponsors.name, `%${searchQuery}%`)
+										),
 										eq(DB_SCHEMA.sponsors.ytChannelId, channelId)
 									)
 								)
@@ -957,11 +986,14 @@ const dbService = Effect.gen(function* () {
 					)
 				);
 
-				const [videos, sponsors] = yield* Effect.all([videosEffect, sponsorsEffect], {
-					concurrency: 'unbounded'
-				});
+				const [videos, sponsors, channels] = yield* Effect.all(
+					[videosEffect, sponsorsEffect, channelsEffect],
+					{
+						concurrency: 'unbounded'
+					}
+				);
 
-				const results = Array.appendAll(sponsors, videos);
+				const results = [channels, sponsors, videos].flat();
 
 				return {
 					results
