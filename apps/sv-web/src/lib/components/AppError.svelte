@@ -5,6 +5,7 @@
 	const { err, retryFn }: { err: unknown; retryFn?: () => void } = $props();
 
 	const details = $derived.by((): App.Error & { status: number } => {
+		console.error(err);
 		if (!isHttpError(err)) return { type: 'unknown', message: 'Unknown error', status: 500 };
 		return {
 			type: err.body.type,

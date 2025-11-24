@@ -15,6 +15,7 @@
 </svelte:head>
 
 <ModeWatcher />
+<!-- <div class="flex flex-col items-center justify-between" data-sveltekit-preload-data="off"> -->
 <div class="flex flex-col items-center justify-between">
 	{@render children?.()}
 </div>
