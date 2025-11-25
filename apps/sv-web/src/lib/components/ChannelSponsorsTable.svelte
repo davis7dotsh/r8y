@@ -90,6 +90,24 @@
 			}
 		},
 		{
+			accessorKey: 'avgViewsPerVideo',
+			header: ({ column }) =>
+				renderComponent(DataTableColumnHeader, {
+					title: 'Avg Views',
+					isSorted: column.getIsSorted(),
+					onclick: column.getToggleSortingHandler()
+				}),
+			cell: ({ row }) => {
+				const snippet = createRawSnippet<[{ avg: number }]>((params) => {
+					const { avg } = params();
+					return {
+						render: () => `<span class="tabular-nums">${formatNumber(avg)}</span>`
+					};
+				});
+				return renderSnippet(snippet, { avg: row.original.avgViewsPerVideo });
+			}
+		},
+		{
 			accessorKey: 'lastVideoPublishedAt',
 			header: ({ column }) =>
 				renderComponent(DataTableColumnHeader, {

@@ -833,11 +833,14 @@ const dbService = Effect.gen(function* () {
 					const daysAgo = lastPublishedAt
 						? Math.floor((Date.now() - lastPublishedAt.getTime()) / (1000 * 60 * 60 * 24))
 						: null;
+					const totalViews = Number(s.totalViews) || 0;
+					const totalVideos = Number(s.totalVideos) || 0;
 
 					return {
 						...s.sponsor,
-						totalViews: Number(s.totalViews) || 0,
-						totalVideos: Number(s.totalVideos) || 0,
+						totalViews,
+						totalVideos,
+						avgViewsPerVideo: totalVideos > 0 ? Math.round(totalViews / totalVideos) : 0,
 						lastVideoPublishedAt: lastPublishedAt?.getTime() || null,
 						lastVideoPublishedDaysAgo: daysAgo
 					};
@@ -916,6 +919,7 @@ const dbService = Effect.gen(function* () {
 
 				const totalViews = videos.reduce((sum, v) => sum + v.viewCount, 0);
 				const totalAds = videos.length;
+				const avgViewsPerVideo = totalAds > 0 ? Math.round(totalViews / totalAds) : 0;
 				const lastPublishDate =
 					videos.length > 0 ? (videos[0]?.publishedAt.getTime() ?? null) : null;
 
@@ -926,6 +930,7 @@ const dbService = Effect.gen(function* () {
 					stats: {
 						totalViews,
 						totalAds,
+						avgViewsPerVideo,
 						lastPublishDate
 					}
 				};
