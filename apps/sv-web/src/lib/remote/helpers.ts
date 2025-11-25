@@ -3,6 +3,7 @@ import { error } from '@sveltejs/kit';
 import { Effect, Cause, ManagedRuntime, Layer } from 'effect';
 import { AuthError, AuthService } from '$lib/services/auth';
 import { TaggedError } from 'effect/Data';
+import { getRequestEvent } from '$app/server';
 
 export class AppError extends TaggedError('AppError') {
 	status: number;
@@ -94,4 +95,23 @@ export const remoteRunner = async <A>(
 	}
 
 	return result.value;
+};
+
+export const authedRemoteRunner = async <A>(
+	fn: (ctx: {
+		auth: AuthService;
+		db: DbService;
+	}) => Effect.Effect<A, AuthError | DbError | AppError, DbService | AuthService>
+) => {
+	return remoteRunner(
+		Effect.gen(function* () {
+			const auth = yield* AuthService;
+			const db = yield* DbService;
+
+			const event = yield* Effect.sync(() => getRequestEvent());
+			yield* auth.checkAuthAndFail(event);
+
+			return yield* fn({ auth, db });
+		})
+	);
 };

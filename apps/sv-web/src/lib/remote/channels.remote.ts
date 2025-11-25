@@ -1,25 +1,10 @@
-import { form, getRequestEvent, query } from '$app/server';
+import { form, query } from '$app/server';
 import { Effect } from 'effect';
 import z from 'zod';
-import { remoteRunner } from './helpers';
-import { AuthService } from '$lib/services/auth';
-import { DbService } from '$lib/services/db';
+import { authedRemoteRunner } from './helpers';
 
 export const remoteGetAllChannels = query(async () => {
-	const result = await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-
-			yield* auth.checkAuthAndFail(event);
-
-			const channels = yield* db.getAllChannels();
-			return yield* Effect.succeed(channels);
-		})
-	);
-	return result;
+	return authedRemoteRunner(({ db }) => db.getAllChannels());
 });
 
 export const remoteCreateChannel = form(
@@ -29,134 +14,46 @@ export const remoteCreateChannel = form(
 		ytChannelId: z.string()
 	}),
 	async (data) => {
-		return await remoteRunner(
+		return authedRemoteRunner(({ db }) =>
 			Effect.gen(function* () {
-				const auth = yield* AuthService;
-				const db = yield* DbService;
-
-				const event = yield* Effect.sync(() => getRequestEvent());
-				yield* auth.checkAuthAndFail(event);
-
 				yield* db.createChannel(data);
-
-				return yield* Effect.succeed({
-					success: true
-				});
+				return { success: true };
 			})
 		);
 	}
 );
 
 export const remoteGetChannelsWithStats = query(async () => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const channels = yield* db.getChannelsWithStats();
-			return yield* Effect.succeed(channels);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getChannelsWithStats());
 });
 
 export const remoteGetLast7VideosByViews = query(z.string(), async (ytChannelId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const result = yield* db.getLast7VideosByViews(ytChannelId);
-
-			return yield* Effect.succeed(result);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getLast7VideosByViews(ytChannelId));
 });
 
 export const remoteGetChannelDetails = query(z.string(), async (ytChannelId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const channel = yield* db.getChannel(ytChannelId);
-
-			return yield* Effect.succeed(channel);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getChannel(ytChannelId));
 });
 
 export const remoteGetChannelVideos = query(z.string(), async (ytChannelId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const videos = yield* db.getChannelVideos({
-				ytChannelId,
-				limit: 20
-			});
-
-			return yield* Effect.succeed(videos);
+	return authedRemoteRunner(({ db }) =>
+		db.getChannelVideos({
+			ytChannelId,
+			limit: 20
 		})
 	);
 });
 
 export const remoteGetChannelNotifications = query(z.string(), async (ytChannelId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const notifications = yield* db.getChannelNotifications(ytChannelId);
-			return yield* Effect.succeed(notifications);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getChannelNotifications(ytChannelId));
 });
 
 export const remoteGetChannelSponsors = query(z.string(), async (ytChannelId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const sponsors = yield* db.getChannelSponsors(ytChannelId);
-			return yield* Effect.succeed(sponsors);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getChannelSponsors(ytChannelId));
 });
 
 export const remoteGetSponsorDetails = query(z.string(), async (sponsorId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const result = yield* db.getSponsorDetails(sponsorId);
-
-			return yield* Effect.succeed(result);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getSponsorDetails(sponsorId));
 });
 
 export const remoteSearchVideosAndSponsors = query(
@@ -165,34 +62,10 @@ export const remoteSearchVideosAndSponsors = query(
 		channelId: z.string()
 	}),
 	async (args) => {
-		return await remoteRunner(
-			Effect.gen(function* () {
-				const auth = yield* AuthService;
-				const db = yield* DbService;
-
-				const event = yield* Effect.sync(() => getRequestEvent());
-				yield* auth.checkAuthAndFail(event);
-
-				const result = yield* db.searchVideosAndSponsors(args);
-
-				return yield* Effect.succeed(result);
-			})
-		);
+		return authedRemoteRunner(({ db }) => db.searchVideosAndSponsors(args));
 	}
 );
 
 export const remoteGetVideoDetails = query(z.string(), async (ytVideoId) => {
-	return await remoteRunner(
-		Effect.gen(function* () {
-			const auth = yield* AuthService;
-			const db = yield* DbService;
-
-			const event = yield* Effect.sync(() => getRequestEvent());
-			yield* auth.checkAuthAndFail(event);
-
-			const result = yield* db.getVideoDetails(ytVideoId);
-
-			return yield* Effect.succeed(result);
-		})
-	);
+	return authedRemoteRunner(({ db }) => db.getVideoDetails(ytVideoId));
 });

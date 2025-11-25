@@ -936,7 +936,9 @@ const dbService = Effect.gen(function* () {
 				const { searchQuery, channelId } = args;
 
 				if (!searchQuery) {
-					return [];
+					return {
+						results: []
+					};
 				}
 
 				const videosEffect = channelId
