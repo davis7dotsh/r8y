@@ -141,7 +141,7 @@ const youtubeService = Effect.gen(function* () {
 								part: ['contentDetails'],
 								playlistId: uploadsPlaylistId,
 								maxResults: 50,
-								pageToken: nextPageToken
+								...(nextPageToken !== undefined && { pageToken: nextPageToken })
 							}),
 						catch: (err) =>
 							new YoutubeError(`Failed to get playlist items for playlist ${uploadsPlaylistId}`, {

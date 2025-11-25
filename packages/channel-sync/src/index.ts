@@ -85,13 +85,14 @@ const channelSyncService = Effect.gen(function* () {
 			}
 
 			if (wasInserted) {
+				const options = args.isBackfill !== undefined ? { isBackfill: args.isBackfill } : {};
 				yield* discord.sendVideoLiveToDiscord(
 					{
 						ytVideoId: args.ytVideoId,
 						title: videoDetails.title
 					},
 					sponsor,
-					{ isBackfill: args.isBackfill }
+					options
 				);
 				yield* todoist.sendVideoLiveToTodoist(
 					{
@@ -99,7 +100,7 @@ const channelSyncService = Effect.gen(function* () {
 						title: videoDetails.title
 					},
 					sponsor,
-					{ isBackfill: args.isBackfill }
+					options
 				);
 			}
 

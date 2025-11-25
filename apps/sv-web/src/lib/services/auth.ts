@@ -15,7 +15,7 @@ const authService = Effect.gen(function* () {
 	const secretPassword = yield* Effect.sync(() => env.SECRET_PASSWORD);
 
 	if (!secretPassword) {
-		yield* Effect.die('SECRET_PASSWORD is not set');
+		return yield* Effect.die('SECRET_PASSWORD is not set');
 	}
 
 	const AUTH_PASSWORD_COOKIE_NAME = 'authPassword';
@@ -24,7 +24,7 @@ const authService = Effect.gen(function* () {
 		Effect.gen(function* () {
 			const isAuthenticated = yield* checkAuth(event);
 			if (!isAuthenticated) {
-				yield* Effect.fail(new AuthError('you are not authenticated'));
+				return yield* Effect.fail(new AuthError('you are not authenticated'));
 			}
 		});
 

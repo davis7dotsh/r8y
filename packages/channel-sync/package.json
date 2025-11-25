@@ -4,6 +4,7 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
+		"check": "tsc --noEmit",
 		"format": "prettier --write .",
 		"lint": "prettier --check .",
 		"backfill": "bun run scripts/backfill.ts"

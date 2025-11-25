@@ -8,6 +8,7 @@
         "@typescript/native-preview": "^7.0.0-dev.20251123.1",
       },
       "devDependencies": {
+        "@effect/language-service": "^0.56.0",
         "prettier": "^3.6.2",
         "turbo": "^2.6.1",
         "typescript": "^5.9.3",
@@ -145,6 +146,8 @@
     "@doist/todoist-api-typescript": ["@doist/todoist-api-typescript@6.0.0", "", { "dependencies": { "camelcase": "6.3.0", "emoji-regex": "10.6.0", "form-data": "4.0.4", "ts-custom-error": "^3.2.0", "uuid": "11.1.0", "zod": "4.1.12" }, "peerDependencies": { "type-fest": "^4.12.0" } }, "sha512-ChT629wsETqvtKouaQzaaWpXYLjm3vo33qKqsoCjnBScydfn4gwaha20PFxYkMri6gpHtxsMWEwt0oYUBgZxJA=="],
 
     "@drizzle-team/brocli": ["@drizzle-team/brocli@0.10.2", "", {}, "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w=="],
+
+    "@effect/language-service": ["@effect/language-service@0.56.0", "", { "bin": { "effect-language-service": "cli.js" } }, "sha512-gvJaHoeXMHAoA6+Xyj9Vdq52yDCs+ECLbKpHvxHtdJP/C0D9b3JFEfLjdVuw37zoWcYS856um4rgEYHlW2LSEQ=="],
 
     "@emnapi/core": ["@emnapi/core@1.6.0", "", { "dependencies": { "@emnapi/wasi-threads": "1.1.0", "tslib": "^2.4.0" } }, "sha512-zq/ay+9fNIJJtJiZxdTnXS20PllcYMX3OE23ESc4HK/bdYu3cOWYVhsOhVnXALfU/uqJIxn5NBPd9z4v+SfoSg=="],
 

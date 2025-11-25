@@ -1,5 +1,5 @@
 import { ChannelSyncService, DbService } from '@r8y/channel-sync';
-import { Effect, Fiber, pipe, Schedule } from 'effect';
+import { Effect, Fiber, Layer, pipe, Schedule } from 'effect';
 
 const program = Effect.gen(function* () {
 	const channelSync = yield* ChannelSyncService;
@@ -7,9 +7,7 @@ const program = Effect.gen(function* () {
 	yield* Effect.log('starting bg worker');
 	yield* channelSync.syncAllChannels();
 }).pipe(
-	Effect.provide(ChannelSyncService.Default),
-	// TODO: should probably wrap this in something so I'm not exposing the db service to the outside world
-	Effect.provide(DbService.Default),
+	Effect.provide(Layer.provideMerge(ChannelSyncService.Default, DbService.Default)),
 	Effect.matchCause({
 		onSuccess: () => {
 			console.log('finished bg worker');

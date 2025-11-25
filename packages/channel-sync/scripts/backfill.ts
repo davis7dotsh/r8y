@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { ChannelSyncService, DbService } from '../src';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import { parseArgs } from 'util';
 
 const main = Effect.gen(function* () {
@@ -32,8 +32,7 @@ const main = Effect.gen(function* () {
 	const channelSync = yield* ChannelSyncService;
 	yield* channelSync.backfillChannel({ ytChannelId: channelId });
 }).pipe(
-	Effect.provide(ChannelSyncService.Default),
-	Effect.provide(DbService.Default),
+	Effect.provide(Layer.provideMerge(ChannelSyncService.Default, DbService.Default)),
 	Effect.matchCause({
 		onSuccess: () => {
 			console.log('Backfill completed successfully');

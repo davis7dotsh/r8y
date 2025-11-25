@@ -12,9 +12,11 @@
 		"build:web": "turbo run build --filter @r8y/sv-web",
 		"build:worker": "turbo run build --filter @r8y/bun-worker",
 		"start:web": "bun --filter @r8y/sv-web start",
-		"start:worker": "bun --filter @r8y/bun-worker start"
+		"start:worker": "bun --filter @r8y/bun-worker start",
+		"prepare": "effect-language-service patch"
 	},
 	"devDependencies": {
+		"@effect/language-service": "^0.56.0",
 		"prettier": "^3.6.2",
 		"turbo": "^2.6.1",
 		"typescript": "^5.9.3"
