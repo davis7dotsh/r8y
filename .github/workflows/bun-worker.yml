@@ -44,4 +44,3 @@ jobs:
         run: |
           docker push t3content.jfrog.io/bun-worker:${{ github.sha }}
           docker push t3content.jfrog.io/bun-worker:latest
-
