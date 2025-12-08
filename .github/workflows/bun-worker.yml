@@ -29,7 +29,7 @@ jobs:
       - name: Setup JFrog Fly
         uses: jfrog/fly-action@v1
         with:
-          registry: t3content.jfrog.io
+          url: t3content.jfrog.io
 
       - name: Build Docker image
         run: |
