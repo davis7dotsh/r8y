@@ -13,7 +13,7 @@ const runSync = Effect.fn('BgWorker.runSync')(function* () {
 
 const program = runSync().pipe(
 	Effect.catchAllCause((cause) => Effect.logError('sync failed', cause)),
-	Effect.repeat(Schedule.spaced('30 minutes')),
+	Effect.repeat(Schedule.spaced('20 minutes')),
 	Effect.provide(appLayer),
 	Effect.withSpan('BgWorker.main')
 );
