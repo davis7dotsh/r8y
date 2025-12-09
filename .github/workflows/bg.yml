@@ -39,6 +39,7 @@ jobs:
             -f docker/Dockerfile.bg \
             -t t3content.jfrog.io/docker/r8y-bg:${{ github.sha }} \
             -t t3content.jfrog.io/docker/r8y-bg:latest \
+            --platform linux/amd64,linux/arm64 \
             --push \
             .
         env: 

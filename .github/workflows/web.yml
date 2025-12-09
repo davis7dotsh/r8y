@@ -38,6 +38,7 @@ jobs:
             -f docker/Dockerfile.web \
             -t t3content.jfrog.io/docker/r8y-web:${{ github.sha }} \
             -t t3content.jfrog.io/docker/r8y-web:latest \
+            --platform linux/amd64,linux/arm64 \
             --push \
             .
         env:
