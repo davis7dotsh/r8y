@@ -33,21 +33,14 @@ jobs:
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
-      - uses: depot/build-push-action@v1
-        with:
-          token: ${{ secrets.DEPOT_SECRET }}
-          context: .
-
       - name: Build Docker image
         run: |
-          docker build \
+          depot build \
             -f docker/Dockerfile.bg \
             -t t3content.jfrog.io/docker/r8y-bg:${{ github.sha }} \
             -t t3content.jfrog.io/docker/r8y-bg:latest \
+            --push
             .
+        env: 
+          DEPOT_TOKEN: ${{ secrets.DEPOT_SECRET }}
 
-      - name: Push to Fly registry
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker push t3content.jfrog.io/docker/r8y-bg:${{ github.sha }}
-          docker push t3content.jfrog.io/docker/r8y-bg:latest
