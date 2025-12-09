@@ -34,7 +34,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -f Dockerfile.bun-worker \
+            -f docker/Dockerfile.bun-worker \
             -t t3content.jfrog.io/docker/bun-worker:${{ github.sha }} \
             -t t3content.jfrog.io/docker/bun-worker:latest \
             .
