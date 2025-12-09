@@ -35,7 +35,7 @@ jobs:
 
       - uses: depot/build-push-action@v1
         with:
-          token: ${{ secrets.DEPOT_TOKEN }}
+          token: ${{ secrets.DEPOT_SECRET }}
           context: .
 
       - name: Build Docker image
