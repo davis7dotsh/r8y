@@ -12,8 +12,8 @@
         "typescript": "^5.9.3",
       },
     },
-    "apps/bun-worker": {
-      "name": "@r8y/bun-worker",
+    "apps/bg": {
+      "name": "@r8y/bg",
       "dependencies": {
         "@doist/todoist-api-typescript": "^6.2.1",
         "@effect/platform": "^0.93.6",
@@ -36,8 +36,8 @@
         "typescript": "^5.9.3",
       },
     },
-    "apps/local-helpers": {
-      "name": "local-helpers",
+    "apps/helpers": {
+      "name": "@r8y/helpers",
       "dependencies": {
         "@r8y/channel-sync": "*",
         "@r8y/db": "*",
@@ -50,8 +50,8 @@
         "typescript": "^5",
       },
     },
-    "apps/sv-web": {
-      "name": "@r8y/sv-web",
+    "apps/web": {
+      "name": "@r8y/web",
       "version": "0.0.1",
       "dependencies": {
         "@effect/platform": "^0.93.3",
@@ -306,13 +306,15 @@
 
     "@polka/url": ["@polka/url@1.0.0-next.29", "", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
 
-    "@r8y/bun-worker": ["@r8y/bun-worker@workspace:apps/bun-worker"],
+    "@r8y/bg": ["@r8y/bg@workspace:apps/bg"],
 
     "@r8y/channel-sync": ["@r8y/channel-sync@workspace:packages/channel-sync"],
 
     "@r8y/db": ["@r8y/db@workspace:packages/db"],
 
-    "@r8y/sv-web": ["@r8y/sv-web@workspace:apps/sv-web"],
+    "@r8y/helpers": ["@r8y/helpers@workspace:apps/helpers"],
+
+    "@r8y/web": ["@r8y/web@workspace:apps/web"],
 
     "@rolldown/binding-darwin-arm64": ["@rolldown/binding-darwin-arm64@1.0.0-beta.9-commit.d91dfb5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Mp0/gqiPdepHjjVm7e0yL1acWvI0rJVVFQEADSezvAjon9sjQ7CEg9JnXICD4B1YrPmN9qV/e7cQZCp87tTV4w=="],
 
@@ -685,8 +687,6 @@
     "lightningcss-win32-arm64-msvc": ["lightningcss-win32-arm64-msvc@1.30.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-FZn+vaj7zLv//D/192WFFVA0RgHawIcHqLX9xuWiQt7P0PtdFEVaxgF9rjM/IRYHQXNnk61/H/gb2Ei+kUQ4xQ=="],
 
     "lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.30.2", "", { "os": "win32", "cpu": "x64" }, "sha512-5g1yc73p+iAkid5phb4oVFMB45417DkRevRbt/El/gKXJk4jid+vPFF/AXbxn05Aky8PapwzZrdJShv5C0avjw=="],
-
-    "local-helpers": ["local-helpers@workspace:apps/local-helpers"],
 
     "locate-character": ["locate-character@3.0.0", "", {}, "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA=="],
 

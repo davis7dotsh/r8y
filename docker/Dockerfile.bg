@@ -1,0 +1,24 @@
+FROM oven/bun:1.3.4 AS base
+
+FROM base AS prune
+RUN bun add -g turbo
+WORKDIR /app
+COPY . .
+RUN turbo prune @r8y/bg --docker
+
+FROM base AS install
+WORKDIR /app
+COPY --from=prune /app/out/json/ .
+RUN bun install --frozen-lockfile
+
+FROM base AS build
+WORKDIR /app
+COPY --from=install /app/node_modules ./node_modules
+COPY --from=prune /app/out/full/ .
+RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
+
+FROM gcr.io/distroless/base-debian12 AS runtime
+COPY --from=build /app/worker /worker
+USER nonroot
+CMD ["/worker"]
+

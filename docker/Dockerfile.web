@@ -4,7 +4,7 @@ FROM base AS prune
 RUN bun add -g turbo
 WORKDIR /app
 COPY . .
-RUN turbo prune @r8y/bun-worker --docker
+RUN turbo prune @r8y/web --docker
 
 FROM base AS install
 WORKDIR /app
@@ -15,10 +15,12 @@ FROM base AS build
 WORKDIR /app
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=prune /app/out/full/ .
-RUN bun build apps/bun-worker/src/index.ts --compile --minify --outfile /app/worker
+RUN bun run --filter @r8y/web build
 
-FROM gcr.io/distroless/base-debian12 AS runtime
-COPY --from=build /app/worker /worker
-USER nonroot
-CMD ["/worker"]
-
+FROM base AS runtime
+WORKDIR /app
+COPY --from=build /app/apps/web/build ./build
+COPY --from=build /app/apps/web/package.json ./package.json
+USER bun
+EXPOSE 8080
+CMD ["bun", "run", "./build"]

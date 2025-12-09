@@ -1,0 +1,44 @@
+name: Build web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+      - '.github/workflows/web.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/db/**'
+      - '.github/workflows/web.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
+        with:
+          url: https://t3content.jfrog.io
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f docker/Dockerfile.web \
+            -t t3content.jfrog.io/docker/r8y-web:${{ github.sha }} \
+            -t t3content.jfrog.io/docker/r8y-web:latest \
+            .
+
+      - name: Push to Fly registry
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker push t3content.jfrog.io/docker/r8y-web:${{ github.sha }}
+          docker push t3content.jfrog.io/docker/r8y-web:latest

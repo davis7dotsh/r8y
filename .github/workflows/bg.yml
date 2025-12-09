@@ -1,20 +1,19 @@
-name: Build bun-worker
+name: Build bg
 
 on:
   push:
     branches: [main]
     paths:
-      - 'apps/bun-worker/**'
-      - 'packages/db/**'
-      - 'packages/channel-sync/**'
-      - '.github/workflows/bun-worker.yml'
+      - 'apps/bg/**'
+      - 'packages/**'
+      - '.github/workflows/bg.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'apps/bun-worker/**'
+      - 'apps/bg/**'
       - 'packages/db/**'
       - 'packages/channel-sync/**'
-      - '.github/workflows/bun-worker.yml'
+      - '.github/workflows/bg.yml'
 
 permissions:
   contents: read
@@ -34,13 +33,13 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            -f docker/Dockerfile.bun-worker \
-            -t t3content.jfrog.io/docker/bun-worker:${{ github.sha }} \
-            -t t3content.jfrog.io/docker/bun-worker:latest \
+            -f docker/Dockerfile.bg \
+            -t t3content.jfrog.io/docker/r8y-bg:${{ github.sha }} \
+            -t t3content.jfrog.io/docker/r8y-bg:latest \
             .
 
       - name: Push to Fly registry
         if: github.ref == 'refs/heads/main'
         run: |
-          docker push t3content.jfrog.io/docker/bun-worker:${{ github.sha }}
-          docker push t3content.jfrog.io/docker/bun-worker:latest
+          docker push t3content.jfrog.io/docker/r8y-bg:${{ github.sha }}
+          docker push t3content.jfrog.io/docker/r8y-bg:latest

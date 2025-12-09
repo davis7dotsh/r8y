@@ -1,5 +1,5 @@
 {
-	"name": "@r8y/bun-worker",
+	"name": "@r8y/bg",
 	"module": "src/index.ts",
 	"type": "module",
 	"private": true,

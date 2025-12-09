@@ -1,5 +1,5 @@
 {
-	"name": "local-helpers",
+	"name": "@r8y/helpers",
 	"private": true,
 	"scripts": {
 		"wipe": "bun src/wipe.ts"

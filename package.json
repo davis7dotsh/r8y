@@ -2,7 +2,6 @@
 	"name": "@r8y/root",
 	"private": true,
 	"scripts": {
-		"build": "turbo run build",
 		"dev": "docker compose -f docker/docker-compose.yml up -d && dotenv -- turbo run dev",
 		"dev:no-db": "dotenv -- turbo run dev",
 		"db:up": "docker compose -f docker/docker-compose.yml up -d",
@@ -12,13 +11,11 @@
 		"db:push": "dotenv -- bun run --filter @r8y/db db:push",
 		"check": "turbo run check",
 		"lint": "turbo run lint",
-		"clean": "find . -type d \\( -name \"node_modules\" -o -name \"dist\" -o -name \"build\" -o -name \".turbo\" -o -name \".svelte-kit\" \\) -prune -exec rm -rf {} + 2>/dev/null || true",
 		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
-		"check-types": "turbo run check-types",
-		"build:web": "turbo run build --filter @r8y/sv-web",
-		"build:worker": "turbo run build --filter @r8y/bun-worker",
-		"start:web": "bun --filter @r8y/sv-web start",
-		"start:worker": "bun --filter @r8y/bun-worker start",
+		"types": "turbo run check-types",
+		"clean": "find . -type d \\( -name \"node_modules\" -o -name \"dist\" -o -name \"build\" -o -name \".turbo\" -o -name \".svelte-kit\" \\) -prune -exec rm -rf {} + 2>/dev/null || true",
+		"docker:web": "docker build -f docker/Dockerfile.web -t r8y-web .",
+		"docker:bg": "docker build -f docker/Dockerfile.bg -t r8y-bg .",
 		"prepare": "effect-language-service patch"
 	},
 	"devDependencies": {
