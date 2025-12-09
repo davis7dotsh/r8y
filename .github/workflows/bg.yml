@@ -30,6 +30,13 @@ jobs:
         with:
           url: https://t3content.jfrog.io
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - uses: depot/build-push-action@v1
+        with:
+          context: .
+
       - name: Build Docker image
         run: |
           docker build \
