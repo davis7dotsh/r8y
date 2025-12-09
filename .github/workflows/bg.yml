@@ -39,7 +39,7 @@ jobs:
             -f docker/Dockerfile.bg \
             -t t3content.jfrog.io/docker/r8y-bg:${{ github.sha }} \
             -t t3content.jfrog.io/docker/r8y-bg:latest \
-            --push
+            --push \
             .
         env: 
           DEPOT_TOKEN: ${{ secrets.DEPOT_SECRET }}
