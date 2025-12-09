@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>r8y 3.0 - YouTube Channel Analytics & Sponsor Tracking</title>
+	<title>r8y - YT Analytics & Sponsor Tracking</title>
 	<meta
 		name="description"
 		content="Track YouTube channel analytics, monitor sponsors, and analyze video performance across your channels."
