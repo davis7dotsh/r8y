@@ -15,6 +15,7 @@ FROM base AS build
 WORKDIR /app
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=prune /app/out/full/ .
+COPY tsconfig.base.json .
 RUN bun run --filter @r8y/web build
 
 FROM base AS runtime
