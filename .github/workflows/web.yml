@@ -29,16 +29,16 @@ jobs:
         with:
           url: https://t3content.jfrog.io
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Build Docker image
         run: |
-          docker build \
+          depot build \
             -f docker/Dockerfile.web \
             -t t3content.jfrog.io/docker/r8y-web:${{ github.sha }} \
             -t t3content.jfrog.io/docker/r8y-web:latest \
+            --push \
             .
-
-      - name: Push to Fly registry
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker push t3content.jfrog.io/docker/r8y-web:${{ github.sha }}
-          docker push t3content.jfrog.io/docker/r8y-web:latest
+        env:
+          DEPOT_TOKEN: ${{ secrets.DEPOT_SECRET }}
