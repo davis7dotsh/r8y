@@ -22,5 +22,6 @@ FROM base AS runtime
 WORKDIR /app
 COPY --from=build /app/apps/web/build ./build
 COPY --from=build /app/apps/web/package.json ./package.json
+COPY --from=build /app/node_modules ./node_modules
 EXPOSE 8080
-CMD ["bun", "run", "./build"]
+CMD ["bun", "run", "start"]
