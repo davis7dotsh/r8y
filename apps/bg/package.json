@@ -1,5 +1,6 @@
 {
 	"name": "@r8y/bg",
+	"version": "3.0.1",
 	"module": "src/index.ts",
 	"type": "module",
 	"private": true,

@@ -19,6 +19,5 @@ RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
 
 FROM debian:stable-slim AS runtime
 COPY --from=build /app/worker /worker
-USER nonroot
 CMD ["/worker"]
 
