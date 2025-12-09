@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.4 AS base
+FROM oven/bun AS base
 
 FROM base AS prune
 RUN bun add -g turbo
@@ -17,7 +17,7 @@ COPY --from=install /app/node_modules ./node_modules
 COPY --from=prune /app/out/full/ .
 RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
 
-FROM gcr.io/distroless/base-debian12 AS runtime
+FROM debian:stable-slim AS runtime
 COPY --from=build /app/worker /worker
 USER nonroot
 CMD ["/worker"]
