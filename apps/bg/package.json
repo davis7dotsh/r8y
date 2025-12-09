@@ -14,8 +14,9 @@
 	},
 	"dependencies": {
 		"@doist/todoist-api-typescript": "^6.2.1",
+		"@effect/cluster": "^0.55.0",
 		"@effect/platform": "^0.93.6",
-		"@effect/platform-bun": "^0.84.0",
+		"@effect/platform-bun": "^0.86.0",
 		"@openrouter/ai-sdk-provider": "^1.4.1",
 		"@r8y/channel-sync": "*",
 		"@r8y/db": "*",
