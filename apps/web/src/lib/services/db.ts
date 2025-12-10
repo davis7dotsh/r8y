@@ -9,6 +9,7 @@ import {
 	desc,
 	and,
 	gte,
+	lt,
 	count,
 	sum,
 	max,
@@ -1046,6 +1047,105 @@ const dbService = Effect.gen(function* () {
 				return {
 					results
 				};
+			}),
+
+		getChannelVideos2025: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const startOf2025 = new Date('2025-01-01T00:00:00.000Z');
+				const startOf2026 = new Date('2026-01-01T00:00:00.000Z');
+
+				const videos = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								video: DB_SCHEMA.videos,
+								sponsor: DB_SCHEMA.sponsors
+							})
+							.from(DB_SCHEMA.videos)
+							.leftJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.ytVideoId, DB_SCHEMA.videos.ytVideoId)
+							)
+							.leftJoin(
+								DB_SCHEMA.sponsors,
+								eq(DB_SCHEMA.sponsors.sponsorId, DB_SCHEMA.sponsorToVideos.sponsorId)
+							)
+							.where(
+								and(
+									eq(DB_SCHEMA.videos.ytChannelId, ytChannelId),
+									gte(DB_SCHEMA.videos.publishedAt, startOf2025),
+									lt(DB_SCHEMA.videos.publishedAt, startOf2026)
+								)
+							)
+							.orderBy(desc(DB_SCHEMA.videos.publishedAt)),
+					catch: (err) =>
+						new DbError('Failed to get 2025 videos for channel', {
+							cause: err
+						})
+				});
+
+				return videos.map((v) => ({
+					...v.video,
+					sponsor: v.sponsor || null
+				}));
+			}),
+
+		getChannelSponsors2025: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const startOf2025 = new Date('2025-01-01T00:00:00.000Z');
+				const startOf2026 = new Date('2026-01-01T00:00:00.000Z');
+
+				const sponsors = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								sponsor: DB_SCHEMA.sponsors,
+								videoCount: count(DB_SCHEMA.videos.ytVideoId),
+								totalViews: sum(DB_SCHEMA.videos.viewCount),
+								lastVideoPublishedAt: max(DB_SCHEMA.videos.publishedAt)
+							})
+							.from(DB_SCHEMA.sponsors)
+							.innerJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.sponsorId, DB_SCHEMA.sponsors.sponsorId)
+							)
+							.innerJoin(
+								DB_SCHEMA.videos,
+								eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.sponsorToVideos.ytVideoId)
+							)
+							.where(
+								and(
+									eq(DB_SCHEMA.sponsors.ytChannelId, ytChannelId),
+									gte(DB_SCHEMA.videos.publishedAt, startOf2025),
+									lt(DB_SCHEMA.videos.publishedAt, startOf2026)
+								)
+							)
+							.groupBy(DB_SCHEMA.sponsors.sponsorId),
+					catch: (err) =>
+						new DbError('Failed to get 2025 sponsors for channel', {
+							cause: err
+						})
+				});
+
+				return sponsors.map((s) => {
+					const videoCount = Number(s.videoCount) || 0;
+					const totalViews = Number(s.totalViews) || 0;
+					const lastPublishedAt = s.lastVideoPublishedAt
+						? new Date(s.lastVideoPublishedAt)
+						: null;
+					const daysAgo = lastPublishedAt
+						? Math.floor((Date.now() - lastPublishedAt.getTime()) / (1000 * 60 * 60 * 24))
+						: null;
+
+					return {
+						...s.sponsor,
+						videoCount,
+						totalViews,
+						avgViews: videoCount > 0 ? Math.round(totalViews / videoCount) : 0,
+						lastVideoPublishedAt: lastPublishedAt?.getTime() || null,
+						daysAgo
+					};
+				});
 			}),
 
 		getVideoDetails: (ytVideoId: string) =>

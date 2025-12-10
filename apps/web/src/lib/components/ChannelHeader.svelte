@@ -2,6 +2,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { ChevronDown, Check } from '@lucide/svelte';
 	import { remoteGetAllChannels } from '$lib/remote/channels.remote';
+	import { Button } from './ui/button';
 
 	const { channelId } = $props<{ channelId: string }>();
 
@@ -37,4 +38,6 @@
 			</DropdownMenu.Group>
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
+
+	<Button href={`/app/view/2025?channelId=${channelId}`} variant="outline">2025 Analytics</Button>
 </div>

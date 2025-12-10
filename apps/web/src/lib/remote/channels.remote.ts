@@ -69,3 +69,16 @@ export const remoteSearchVideosAndSponsors = query(
 export const remoteGetVideoDetails = query(z.string(), async (ytVideoId) => {
 	return authedRemoteRunner(({ db }) => db.getVideoDetails(ytVideoId));
 });
+
+export const remoteGetChannel2025Data = query(z.string(), async (ytChannelId) => {
+	return authedRemoteRunner(({ db }) =>
+		Effect.gen(function* () {
+			const [videos, sponsors] = yield* Effect.all(
+				[db.getChannelVideos2025(ytChannelId), db.getChannelSponsors2025(ytChannelId)],
+				{ concurrency: 'unbounded' }
+			);
+
+			return { videos, sponsors };
+		})
+	);
+});
