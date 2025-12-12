@@ -35,7 +35,7 @@
 	<main class="flex min-h-screen w-full grow flex-col items-center justify-center">
 		<div class="flex flex-col items-center gap-6 text-center">
 			<div class="space-y-2">
-				<h1 class="text-4xl font-bold text-foreground">r8y 3.0</h1>
+				<h1 class="text-foreground text-4xl font-bold">r8y 3.0</h1>
 				<p class="text-muted-foreground">YouTube channel analytics and sponsor tracking</p>
 			</div>
 			<Button href="/app" size="lg">Go to Dashboard</Button>
@@ -45,8 +45,8 @@
 	<main class="flex min-h-screen w-full grow flex-col items-center justify-center p-4">
 		<div class="w-full max-w-sm space-y-8">
 			<div class="space-y-2 text-center">
-				<h1 class="text-3xl font-bold text-foreground">r8y 3.0</h1>
-				<p class="text-sm text-muted-foreground">Sign in to access your dashboard</p>
+				<h1 class="text-foreground text-3xl font-bold">r8y 3.0</h1>
+				<p class="text-muted-foreground text-sm">Sign in to access your dashboard</p>
 			</div>
 			<form class="space-y-4" onsubmit={handleSubmit}>
 				<div class="space-y-2">

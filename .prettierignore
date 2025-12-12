@@ -8,4 +8,7 @@ bun.lockb
 # Build outputs
 dist/
 node_modules/
+.svelte-kit/
 
+# Static assets
+**/static/

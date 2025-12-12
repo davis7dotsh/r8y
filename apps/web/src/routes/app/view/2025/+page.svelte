@@ -368,8 +368,8 @@
 
 		{#if data2025?.loading}
 			<div class="animate-pulse space-y-6">
-				<div class="h-64 rounded-xl bg-muted"></div>
-				<div class="h-64 rounded-xl bg-muted"></div>
+				<div class="bg-muted h-64 rounded-xl"></div>
+				<div class="bg-muted h-64 rounded-xl"></div>
 			</div>
 		{:else if data2025?.error}
 			<p class="text-destructive">Error loading data</p>
@@ -378,11 +378,15 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-3">
-						<h2 class="text-lg font-semibold text-foreground">Sponsors</h2>
-						<Badge variant="secondary">{sponsorTable.getFilteredRowModel().rows.length} sponsors</Badge>
+						<h2 class="text-foreground text-lg font-semibold">Sponsors</h2>
+						<Badge variant="secondary"
+							>{sponsorTable.getFilteredRowModel().rows.length} sponsors</Badge
+						>
 					</div>
 					<div class="relative w-64">
-						<Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Search
+							class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+						/>
 						<Input
 							type="text"
 							placeholder="Search sponsors..."
@@ -391,63 +395,68 @@
 						/>
 					</div>
 				</div>
-			{#if data2025.current.sponsors.length === 0}
-				<div
-					class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-12"
-				>
-					<div class="rounded-full bg-muted p-3">
-						<Users class="h-6 w-6 text-muted-foreground" />
+				{#if data2025.current.sponsors.length === 0}
+					<div
+						class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
+					>
+						<div class="bg-muted rounded-full p-3">
+							<Users class="text-muted-foreground h-6 w-6" />
+						</div>
+						<p class="text-muted-foreground mt-3 text-sm">No sponsors with videos in 2025</p>
 					</div>
-					<p class="mt-3 text-sm text-muted-foreground">No sponsors with videos in 2025</p>
-				</div>
-			{:else}
-				<div class="max-h-96 overflow-auto rounded-xl border border-border">
-					<Table.Root>
-						<Table.Header class="bg-muted/80 sticky top-0 z-10">
-							{#key sponsorSorting}
-								{#each sponsorTable.getHeaderGroups() as headerGroup (headerGroup.id)}
-									<Table.Row class="hover:bg-transparent">
-										{#each headerGroup.headers as header (header.id)}
-											<Table.Head
-												class="h-11 text-xs font-medium tracking-wide text-muted-foreground uppercase"
-											>
-												{#if !header.isPlaceholder}
-													<FlexRender
-														content={header.column.columnDef.header}
-														context={header.getContext()}
-													/>
-												{/if}
-											</Table.Head>
+				{:else}
+					<div class="border-border max-h-96 overflow-auto rounded-xl border">
+						<Table.Root>
+							<Table.Header class="bg-muted/80 sticky top-0 z-10">
+								{#key sponsorSorting}
+									{#each sponsorTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+										<Table.Row class="hover:bg-transparent">
+											{#each headerGroup.headers as header (header.id)}
+												<Table.Head
+													class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
+												>
+													{#if !header.isPlaceholder}
+														<FlexRender
+															content={header.column.columnDef.header}
+															context={header.getContext()}
+														/>
+													{/if}
+												</Table.Head>
+											{/each}
+										</Table.Row>
+									{/each}
+								{/key}
+							</Table.Header>
+							<Table.Body>
+								{#each sponsorTable.getRowModel().rows as row (row.id)}
+									<Table.Row class="group">
+										{#each row.getVisibleCells() as cell (cell.id)}
+											<Table.Cell class="py-3">
+												<FlexRender
+													content={cell.column.columnDef.cell}
+													context={cell.getContext()}
+												/>
+											</Table.Cell>
 										{/each}
 									</Table.Row>
 								{/each}
-							{/key}
-						</Table.Header>
-						<Table.Body>
-							{#each sponsorTable.getRowModel().rows as row (row.id)}
-								<Table.Row class="group">
-									{#each row.getVisibleCells() as cell (cell.id)}
-										<Table.Cell class="py-3">
-											<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-										</Table.Cell>
-									{/each}
-								</Table.Row>
-							{/each}
-						</Table.Body>
-					</Table.Root>
-				</div>
-			{/if}
+							</Table.Body>
+						</Table.Root>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Videos Section -->
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-3">
-						<h2 class="text-lg font-semibold text-foreground">Videos</h2>
+						<h2 class="text-foreground text-lg font-semibold">Videos</h2>
 						<Badge variant="secondary">{videoTable.getFilteredRowModel().rows.length} videos</Badge>
 					</div>
 					<div class="relative w-64">
-						<Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Search
+							class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+						/>
 						<Input
 							type="text"
 							placeholder="Search videos..."
@@ -456,52 +465,55 @@
 						/>
 					</div>
 				</div>
-			{#if data2025.current.videos.length === 0}
-				<div
-					class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-12"
-				>
-					<div class="rounded-full bg-muted p-3">
-						<Video class="h-6 w-6 text-muted-foreground" />
+				{#if data2025.current.videos.length === 0}
+					<div
+						class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
+					>
+						<div class="bg-muted rounded-full p-3">
+							<Video class="text-muted-foreground h-6 w-6" />
+						</div>
+						<p class="text-muted-foreground mt-3 text-sm">No videos in 2025</p>
 					</div>
-					<p class="mt-3 text-sm text-muted-foreground">No videos in 2025</p>
-				</div>
-			{:else}
-				<div class="max-h-[600px] overflow-auto rounded-xl border border-border">
-					<Table.Root>
-						<Table.Header class="bg-muted/80 sticky top-0 z-10">
-							{#key videoSorting}
-								{#each videoTable.getHeaderGroups() as headerGroup (headerGroup.id)}
-									<Table.Row class="hover:bg-transparent">
-										{#each headerGroup.headers as header (header.id)}
-											<Table.Head
-												class="h-11 text-xs font-medium tracking-wide text-muted-foreground uppercase"
-											>
-												{#if !header.isPlaceholder}
-													<FlexRender
-														content={header.column.columnDef.header}
-														context={header.getContext()}
-													/>
-												{/if}
-											</Table.Head>
+				{:else}
+					<div class="border-border max-h-[600px] overflow-auto rounded-xl border">
+						<Table.Root>
+							<Table.Header class="bg-muted/80 sticky top-0 z-10">
+								{#key videoSorting}
+									{#each videoTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+										<Table.Row class="hover:bg-transparent">
+											{#each headerGroup.headers as header (header.id)}
+												<Table.Head
+													class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
+												>
+													{#if !header.isPlaceholder}
+														<FlexRender
+															content={header.column.columnDef.header}
+															context={header.getContext()}
+														/>
+													{/if}
+												</Table.Head>
+											{/each}
+										</Table.Row>
+									{/each}
+								{/key}
+							</Table.Header>
+							<Table.Body>
+								{#each videoTable.getRowModel().rows as row (row.id)}
+									<Table.Row class="group">
+										{#each row.getVisibleCells() as cell (cell.id)}
+											<Table.Cell class="py-3">
+												<FlexRender
+													content={cell.column.columnDef.cell}
+													context={cell.getContext()}
+												/>
+											</Table.Cell>
 										{/each}
 									</Table.Row>
 								{/each}
-							{/key}
-						</Table.Header>
-						<Table.Body>
-							{#each videoTable.getRowModel().rows as row (row.id)}
-								<Table.Row class="group">
-									{#each row.getVisibleCells() as cell (cell.id)}
-										<Table.Cell class="py-3">
-											<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-										</Table.Cell>
-									{/each}
-								</Table.Row>
-							{/each}
-						</Table.Body>
-					</Table.Root>
-				</div>
-			{/if}
+							</Table.Body>
+						</Table.Root>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	{/if}
