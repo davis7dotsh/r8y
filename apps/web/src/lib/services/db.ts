@@ -1130,9 +1130,7 @@ const dbService = Effect.gen(function* () {
 				return sponsors.map((s) => {
 					const videoCount = Number(s.videoCount) || 0;
 					const totalViews = Number(s.totalViews) || 0;
-					const lastPublishedAt = s.lastVideoPublishedAt
-						? new Date(s.lastVideoPublishedAt)
-						: null;
+					const lastPublishedAt = s.lastVideoPublishedAt ? new Date(s.lastVideoPublishedAt) : null;
 					const daysAgo = lastPublishedAt
 						? Math.floor((Date.now() - lastPublishedAt.getTime()) / (1000 * 60 * 60 * 24))
 						: null;

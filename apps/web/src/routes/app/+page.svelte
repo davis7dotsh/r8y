@@ -26,8 +26,8 @@
 
 	<div class="mb-8 flex items-start justify-between">
 		<div>
-			<h1 class="text-2xl font-bold text-foreground">Channels</h1>
-			<p class="mt-1 text-sm text-muted-foreground">Manage and view statistics for your channels</p>
+			<h1 class="text-foreground text-2xl font-bold">Channels</h1>
+			<p class="text-muted-foreground mt-1 text-sm">Manage and view statistics for your channels</p>
 		</div>
 		<Button href="/app/channel/create" size="sm">
 			<Plus class="h-4 w-4" />
