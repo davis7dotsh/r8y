@@ -1,99 +1,102 @@
-import { mysqlTable as table } from 'drizzle-orm/mysql-core';
-import * as t from 'drizzle-orm/mysql-core';
+import * as p from 'drizzle-orm/pg-core';
 
-export const channels = table('channels', {
-	ytChannelId: t.varchar('yt_channel_id', { length: 55 }).primaryKey(),
-	name: t.text('name').notNull(),
-	findSponsorPrompt: t.text('find_sponsor_prompt').notNull(),
-	createdAt: t.timestamp('created_at').notNull().defaultNow()
+export const notificationTypeEnum = p.pgEnum('notification_type', [
+	'todoist_video_live',
+	'discord_video_live',
+	'discord_flagged_comment'
+]);
+
+export const channels = p.pgTable('channels', {
+	ytChannelId: p.varchar('yt_channel_id', { length: 55 }).primaryKey(),
+	name: p.text('name').notNull(),
+	findSponsorPrompt: p.text('find_sponsor_prompt').notNull(),
+	createdAt: p.timestamp('created_at').notNull().defaultNow()
 });
 
-export const videos = table(
+export const videos = p.pgTable(
 	'videos',
 	{
-		ytVideoId: t.varchar('yt_video_id', { length: 55 }).primaryKey(),
-		ytChannelId: t.varchar('yt_channel_id', { length: 55 }).notNull(),
-		title: t.varchar('title', { length: 255 }).notNull(),
-		description: t.text('description').notNull(),
-		thumbnailUrl: t.text('thumbnail_url').notNull(),
-		publishedAt: t.datetime('published_at').notNull(),
-		viewCount: t.int('view_count').notNull(),
-		likeCount: t.int('like_count').notNull(),
-		commentCount: t.int('comment_count').notNull(),
-		createdAt: t.timestamp('created_at').notNull().defaultNow()
+		ytVideoId: p.varchar('yt_video_id', { length: 55 }).primaryKey(),
+		ytChannelId: p.varchar('yt_channel_id', { length: 55 }).notNull(),
+		title: p.varchar('title', { length: 255 }).notNull(),
+		description: p.text('description').notNull(),
+		thumbnailUrl: p.text('thumbnail_url').notNull(),
+		publishedAt: p.timestamp('published_at').notNull(),
+		viewCount: p.integer('view_count').notNull(),
+		likeCount: p.integer('like_count').notNull(),
+		commentCount: p.integer('comment_count').notNull(),
+		createdAt: p.timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [
-		t.index('yt_channel_id_and_published_at').on(table.ytChannelId, table.publishedAt),
-		t.index('videos_channel_title_search').on(table.ytChannelId, table.title)
+		p.index('yt_channel_id_and_published_at').on(table.ytChannelId, table.publishedAt),
+		p.index('videos_channel_title_search').on(table.ytChannelId, table.title)
 	]
 );
 
-export const comments = table(
+export const comments = p.pgTable(
 	'comments',
 	{
-		ytCommentId: t.varchar('yt_comment_id', { length: 55 }).primaryKey(),
-		ytVideoId: t.varchar('yt_video_id', { length: 55 }).notNull(),
-		text: t.text('text').notNull(),
-		author: t.text('author').notNull(),
-		publishedAt: t.datetime('published_at').notNull(),
-		likeCount: t.int('like_count').notNull(),
-		replyCount: t.int('reply_count').notNull(),
-		isEditingMistake: t.boolean('is_editing_mistake').notNull(),
-		isSponsorMention: t.boolean('is_sponsor_mention').notNull(),
-		isQuestion: t.boolean('is_question').notNull(),
-		isPositiveComment: t.boolean('is_positive_comment').notNull(),
-		isProcessed: t.boolean('is_processed').notNull(),
-		createdAt: t.timestamp('created_at').notNull().defaultNow()
+		ytCommentId: p.varchar('yt_comment_id', { length: 55 }).primaryKey(),
+		ytVideoId: p.varchar('yt_video_id', { length: 55 }).notNull(),
+		text: p.text('text').notNull(),
+		author: p.text('author').notNull(),
+		publishedAt: p.timestamp('published_at').notNull(),
+		likeCount: p.integer('like_count').notNull(),
+		replyCount: p.integer('reply_count').notNull(),
+		isEditingMistake: p.boolean('is_editing_mistake').notNull(),
+		isSponsorMention: p.boolean('is_sponsor_mention').notNull(),
+		isQuestion: p.boolean('is_question').notNull(),
+		isPositiveComment: p.boolean('is_positive_comment').notNull(),
+		isProcessed: p.boolean('is_processed').notNull(),
+		createdAt: p.timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [
-		t.index('yt_video_id').on(table.ytVideoId),
-		t.index('yt_comment_id').on(table.ytCommentId)
+		p.index('yt_video_id_comments').on(table.ytVideoId),
+		p.index('yt_comment_id').on(table.ytCommentId)
 	]
 );
 
-export const sponsors = table(
+export const sponsors = p.pgTable(
 	'sponsors',
 	{
-		sponsorId: t.varchar('sponsor_id', { length: 55 }).primaryKey(),
-		ytChannelId: t.varchar('yt_channel_id', { length: 55 }).notNull(),
-		sponsorKey: t.varchar('sponsor_key', { length: 255 }).notNull(),
-		name: t.varchar('name', { length: 255 }).notNull(),
-		createdAt: t.timestamp('created_at').notNull().defaultNow()
+		sponsorId: p.varchar('sponsor_id', { length: 55 }).primaryKey(),
+		ytChannelId: p.varchar('yt_channel_id', { length: 55 }).notNull(),
+		sponsorKey: p.varchar('sponsor_key', { length: 255 }).notNull(),
+		name: p.varchar('name', { length: 255 }).notNull(),
+		createdAt: p.timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [
-		t.index('yt_channel_id').on(table.ytChannelId),
-		t.index('sponsor_key').on(table.sponsorKey),
-		t.index('sponsors_channel_key_search').on(table.ytChannelId, table.sponsorKey),
-		t.index('sponsors_name_search').on(table.ytChannelId, table.name)
+		p.index('yt_channel_id_sponsors').on(table.ytChannelId),
+		p.index('sponsor_key').on(table.sponsorKey),
+		p.index('sponsors_channel_key_search').on(table.ytChannelId, table.sponsorKey),
+		p.index('sponsors_name_search').on(table.ytChannelId, table.name)
 	]
 );
 
-export const sponsorToVideos = table(
+export const sponsorToVideos = p.pgTable(
 	'sponsor_to_videos',
 	{
-		sponsorId: t.varchar('sponsor_id', { length: 55 }).notNull(),
-		ytVideoId: t.varchar('yt_video_id', { length: 55 }).notNull(),
-		createdAt: t.timestamp('created_at').notNull().defaultNow()
+		sponsorId: p.varchar('sponsor_id', { length: 55 }).notNull(),
+		ytVideoId: p.varchar('yt_video_id', { length: 55 }).notNull(),
+		createdAt: p.timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [
-		t.primaryKey({ columns: [table.sponsorId, table.ytVideoId] }),
-		t.index('sponsor_id').on(table.sponsorId),
-		t.index('yt_video_id').on(table.ytVideoId)
+		p.primaryKey({ columns: [table.sponsorId, table.ytVideoId] }),
+		p.index('sponsor_id_sponsor_to_videos').on(table.sponsorId),
+		p.index('yt_video_id_sponsor_to_videos').on(table.ytVideoId)
 	]
 );
 
-export const notifications = table(
+export const notifications = p.pgTable(
 	'notifications',
 	{
-		notificationId: t.varchar('notification_id', { length: 55 }).primaryKey(),
-		ytVideoId: t.varchar('yt_video_id', { length: 55 }).notNull(),
-		type: t
-			.mysqlEnum('type', ['todoist_video_live', 'discord_video_live', 'discord_flagged_comment'])
-			.notNull(),
-		success: t.boolean('success').notNull(),
-		message: t.text('message').notNull(),
-		commentId: t.varchar('comment_id', { length: 55 }),
-		createdAt: t.timestamp('created_at').notNull().defaultNow()
+		notificationId: p.varchar('notification_id', { length: 55 }).primaryKey(),
+		ytVideoId: p.varchar('yt_video_id', { length: 55 }).notNull(),
+		type: notificationTypeEnum('type').notNull(),
+		success: p.boolean('success').notNull(),
+		message: p.text('message').notNull(),
+		commentId: p.varchar('comment_id', { length: 55 }),
+		createdAt: p.timestamp('created_at').notNull().defaultNow()
 	},
-	(table) => [t.index('yt_video_id').on(table.ytVideoId)]
+	(table) => [p.index('yt_video_id_notifs').on(table.ytVideoId)]
 );
