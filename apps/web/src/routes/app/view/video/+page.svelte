@@ -1,26 +1,16 @@
 <script lang="ts">
-	import { remoteGetVideoDetails, remoteGetChannelDetails } from '$lib/remote/channels.remote';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import VideoNotificationsTable from '$lib/components/VideoNotificationsTable.svelte';
 	import VideoCommentsTable from '$lib/components/VideoCommentsTable.svelte';
 	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
-	import z from 'zod';
-	import { useSearchParams } from 'runed/kit';
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Eye, ThumbsUp, ExternalLink } from '@lucide/svelte';
 
-	const videoParamsSchema = z.object({
-		videoId: z.string().default(''),
-		channelId: z.string().default('')
-	});
+	let { data } = $props();
 
-	const params = useSearchParams(videoParamsSchema);
-
-	const videoId = $derived(params.videoId);
-	const channelId = $derived(params.channelId);
-
-	const videoData = $derived(await remoteGetVideoDetails(videoId));
-	const channel = $derived(await remoteGetChannelDetails(channelId));
+	const channelId = $derived(data.channelId);
+	const videoData = $derived(data.videoData);
+	const channel = $derived(data.channel);
 </script>
 
 <svelte:head>
@@ -33,7 +23,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6 p-8 pb-24">
-	<ChannelHeader {channelId} />
+	<ChannelHeader {channelId} channels={data.allChannels} />
 
 	<Breadcrumb.Root>
 		<Breadcrumb.List>

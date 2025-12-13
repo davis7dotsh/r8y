@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannel2025Data, remoteGetChannelDetails } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -22,38 +21,33 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate, formatDaysAgo } from '$lib/utils';
 	import { Video, Users, Search } from '@lucide/svelte';
-	import { useSearchParams } from 'runed/kit';
-	import z from 'zod';
 
-	const viewParamsSchema = z.object({
-		channelId: z.string().default('')
-	});
+	let { data } = $props();
 
-	const params = useSearchParams(viewParamsSchema);
-
-	const channelId = $derived(params.channelId);
-
-	const channel = $derived(channelId ? remoteGetChannelDetails(channelId) : null);
-	const data2025 = $derived(channelId ? remoteGetChannel2025Data(channelId) : null);
+	const channelId = $derived(data.channelId);
+	const channel = $derived(data.channel);
+	const data2025 = $derived(data.data2025);
 
 	let sponsorSearch = $state('');
 	let videoSearch = $state('');
 
-	type SponsorType = NonNullable<typeof data2025>['current'] extends infer T
-		? T extends { sponsors: infer S }
-			? S extends Array<infer U>
-				? U
-				: never
-			: never
-		: never;
+	type SponsorType = {
+		sponsorId: string;
+		name: string;
+		videoCount: number;
+		avgViews: number;
+		daysAgo: number | null;
+	};
 
-	type VideoType = NonNullable<typeof data2025>['current'] extends infer T
-		? T extends { videos: infer V }
-			? V extends Array<infer U>
-				? U
-				: never
-			: never
-		: never;
+	type VideoType = {
+		ytVideoId: string;
+		title: string;
+		thumbnailUrl: string;
+		viewCount: number;
+		likeCount: number;
+		publishedAt: Date;
+		sponsor: { sponsorId: string; name: string } | null;
+	};
 
 	const sponsorColumns: ColumnDef<SponsorType>[] = [
 		{
@@ -255,10 +249,10 @@
 	let videoSorting = $state<SortingState>([{ id: 'publishedAt', desc: true }]);
 
 	const sponsorTable = $derived(
-		data2025?.current
+		data2025
 			? createSvelteTable({
 					get data() {
-						return data2025?.current?.sponsors ?? [];
+						return (data2025?.sponsors ?? []) as SponsorType[];
 					},
 					columns: sponsorColumns,
 					state: {
@@ -295,10 +289,10 @@
 	);
 
 	const videoTable = $derived(
-		data2025?.current
+		data2025
 			? createSvelteTable({
 					get data() {
-						return data2025?.current?.videos ?? [];
+						return (data2025?.videos ?? []) as VideoType[];
 					},
 					columns: videoColumns,
 					state: {
@@ -336,15 +330,15 @@
 </script>
 
 <svelte:head>
-	<title>2025 Analytics{channel?.current ? ` - ${channel.current.name}` : ''} - r8y 3.0</title>
+	<title>2025 Analytics{channel ? ` - ${channel.name}` : ''} - r8y 3.0</title>
 	<meta name="description" content="View 2025 analytics for sponsors and videos." />
 </svelte:head>
 
 <div class="flex flex-col gap-6 p-8">
 	{#if !channelId}
 		<p class="text-muted-foreground">Please select a channel</p>
-	{:else}
-		<ChannelHeader {channelId} />
+	{:else if data2025 && sponsorTable && videoTable}
+		<ChannelHeader {channelId} channels={data.allChannels} />
 
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<Breadcrumb.Root>
@@ -355,7 +349,7 @@
 					<Breadcrumb.Separator />
 					<Breadcrumb.Item>
 						<Breadcrumb.Link href={`/app/view/channel?channelId=${channelId}`}>
-							{channel?.current?.name ?? 'Channel'}
+							{channel?.name ?? 'Channel'}
 						</Breadcrumb.Link>
 					</Breadcrumb.Item>
 					<Breadcrumb.Separator />
@@ -366,155 +360,146 @@
 			</Breadcrumb.Root>
 		</div>
 
-		{#if data2025?.loading}
-			<div class="animate-pulse space-y-6">
-				<div class="bg-muted h-64 rounded-xl"></div>
-				<div class="bg-muted h-64 rounded-xl"></div>
-			</div>
-		{:else if data2025?.error}
-			<p class="text-destructive">Error loading data</p>
-		{:else if data2025?.current && sponsorTable && videoTable}
-			<!-- Sponsors Section -->
-			<div class="space-y-4">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-3">
-						<h2 class="text-foreground text-lg font-semibold">Sponsors</h2>
-						<Badge variant="secondary"
-							>{sponsorTable.getFilteredRowModel().rows.length} sponsors</Badge
-						>
-					</div>
-					<div class="relative w-64">
-						<Search
-							class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-						/>
-						<Input
-							type="text"
-							placeholder="Search sponsors..."
-							class="pl-9"
-							bind:value={sponsorSearch}
-						/>
-					</div>
-				</div>
-				{#if data2025.current.sponsors.length === 0}
-					<div
-						class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
+		<!-- Sponsors Section -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<h2 class="text-foreground text-lg font-semibold">Sponsors</h2>
+					<Badge variant="secondary"
+						>{sponsorTable.getFilteredRowModel().rows.length} sponsors</Badge
 					>
-						<div class="bg-muted rounded-full p-3">
-							<Users class="text-muted-foreground h-6 w-6" />
-						</div>
-						<p class="text-muted-foreground mt-3 text-sm">No sponsors with videos in 2025</p>
+				</div>
+				<div class="relative w-64">
+					<Search
+						class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+					/>
+					<Input
+						type="text"
+						placeholder="Search sponsors..."
+						class="pl-9"
+						bind:value={sponsorSearch}
+					/>
+				</div>
+			</div>
+			{#if data2025.sponsors.length === 0}
+				<div
+					class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
+				>
+					<div class="bg-muted rounded-full p-3">
+						<Users class="text-muted-foreground h-6 w-6" />
 					</div>
-				{:else}
-					<div class="border-border max-h-96 overflow-auto rounded-xl border">
-						<Table.Root>
-							<Table.Header class="bg-muted/80 sticky top-0 z-10">
-								{#key sponsorSorting}
-									{#each sponsorTable.getHeaderGroups() as headerGroup (headerGroup.id)}
-										<Table.Row class="hover:bg-transparent">
-											{#each headerGroup.headers as header (header.id)}
-												<Table.Head
-													class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
-												>
-													{#if !header.isPlaceholder}
-														<FlexRender
-															content={header.column.columnDef.header}
-															context={header.getContext()}
-														/>
-													{/if}
-												</Table.Head>
-											{/each}
-										</Table.Row>
-									{/each}
-								{/key}
-							</Table.Header>
-							<Table.Body>
-								{#each sponsorTable.getRowModel().rows as row (row.id)}
-									<Table.Row class="group">
-										{#each row.getVisibleCells() as cell (cell.id)}
-											<Table.Cell class="py-3">
-												<FlexRender
-													content={cell.column.columnDef.cell}
-													context={cell.getContext()}
-												/>
-											</Table.Cell>
+					<p class="text-muted-foreground mt-3 text-sm">No sponsors with videos in 2025</p>
+				</div>
+			{:else}
+				<div class="border-border max-h-96 overflow-auto rounded-xl border">
+					<Table.Root>
+						<Table.Header class="bg-muted/80 sticky top-0 z-10">
+							{#key sponsorSorting}
+								{#each sponsorTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+									<Table.Row class="hover:bg-transparent">
+										{#each headerGroup.headers as header (header.id)}
+											<Table.Head
+												class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
+											>
+												{#if !header.isPlaceholder}
+													<FlexRender
+														content={header.column.columnDef.header}
+														context={header.getContext()}
+													/>
+												{/if}
+											</Table.Head>
 										{/each}
 									</Table.Row>
 								{/each}
-							</Table.Body>
-						</Table.Root>
-					</div>
-				{/if}
-			</div>
+							{/key}
+						</Table.Header>
+						<Table.Body>
+							{#each sponsorTable.getRowModel().rows as row (row.id)}
+								<Table.Row class="group">
+									{#each row.getVisibleCells() as cell (cell.id)}
+										<Table.Cell class="py-3">
+											<FlexRender
+												content={cell.column.columnDef.cell}
+												context={cell.getContext()}
+											/>
+										</Table.Cell>
+									{/each}
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+			{/if}
+		</div>
 
-			<!-- Videos Section -->
-			<div class="space-y-4">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-3">
-						<h2 class="text-foreground text-lg font-semibold">Videos</h2>
-						<Badge variant="secondary">{videoTable.getFilteredRowModel().rows.length} videos</Badge>
-					</div>
-					<div class="relative w-64">
-						<Search
-							class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-						/>
-						<Input
-							type="text"
-							placeholder="Search videos..."
-							class="pl-9"
-							bind:value={videoSearch}
-						/>
-					</div>
+		<!-- Videos Section -->
+		<div class="space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<h2 class="text-foreground text-lg font-semibold">Videos</h2>
+					<Badge variant="secondary">{videoTable.getFilteredRowModel().rows.length} videos</Badge>
 				</div>
-				{#if data2025.current.videos.length === 0}
-					<div
-						class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
-					>
-						<div class="bg-muted rounded-full p-3">
-							<Video class="text-muted-foreground h-6 w-6" />
-						</div>
-						<p class="text-muted-foreground mt-3 text-sm">No videos in 2025</p>
+				<div class="relative w-64">
+					<Search
+						class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+					/>
+					<Input
+						type="text"
+						placeholder="Search videos..."
+						class="pl-9"
+						bind:value={videoSearch}
+					/>
+				</div>
+			</div>
+			{#if data2025.videos.length === 0}
+				<div
+					class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
+				>
+					<div class="bg-muted rounded-full p-3">
+						<Video class="text-muted-foreground h-6 w-6" />
 					</div>
-				{:else}
-					<div class="border-border max-h-[600px] overflow-auto rounded-xl border">
-						<Table.Root>
-							<Table.Header class="bg-muted/80 sticky top-0 z-10">
-								{#key videoSorting}
-									{#each videoTable.getHeaderGroups() as headerGroup (headerGroup.id)}
-										<Table.Row class="hover:bg-transparent">
-											{#each headerGroup.headers as header (header.id)}
-												<Table.Head
-													class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
-												>
-													{#if !header.isPlaceholder}
-														<FlexRender
-															content={header.column.columnDef.header}
-															context={header.getContext()}
-														/>
-													{/if}
-												</Table.Head>
-											{/each}
-										</Table.Row>
-									{/each}
-								{/key}
-							</Table.Header>
-							<Table.Body>
-								{#each videoTable.getRowModel().rows as row (row.id)}
-									<Table.Row class="group">
-										{#each row.getVisibleCells() as cell (cell.id)}
-											<Table.Cell class="py-3">
-												<FlexRender
-													content={cell.column.columnDef.cell}
-													context={cell.getContext()}
-												/>
-											</Table.Cell>
+					<p class="text-muted-foreground mt-3 text-sm">No videos in 2025</p>
+				</div>
+			{:else}
+				<div class="border-border max-h-[600px] overflow-auto rounded-xl border">
+					<Table.Root>
+						<Table.Header class="bg-muted/80 sticky top-0 z-10">
+							{#key videoSorting}
+								{#each videoTable.getHeaderGroups() as headerGroup (headerGroup.id)}
+									<Table.Row class="hover:bg-transparent">
+										{#each headerGroup.headers as header (header.id)}
+											<Table.Head
+												class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
+											>
+												{#if !header.isPlaceholder}
+													<FlexRender
+														content={header.column.columnDef.header}
+														context={header.getContext()}
+													/>
+												{/if}
+											</Table.Head>
 										{/each}
 									</Table.Row>
 								{/each}
-							</Table.Body>
-						</Table.Root>
-					</div>
-				{/if}
-			</div>
-		{/if}
+							{/key}
+						</Table.Header>
+						<Table.Body>
+							{#each videoTable.getRowModel().rows as row (row.id)}
+								<Table.Row class="group">
+									{#each row.getVisibleCells() as cell (cell.id)}
+										<Table.Cell class="py-3">
+											<FlexRender
+												content={cell.column.columnDef.cell}
+												context={cell.getContext()}
+											/>
+										</Table.Cell>
+									{/each}
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+			{/if}
+		</div>
 	{/if}
 </div>

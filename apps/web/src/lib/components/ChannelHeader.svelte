@@ -1,12 +1,11 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { ChevronDown, Check } from '@lucide/svelte';
-	import { remoteGetAllChannels } from '$lib/remote/channels.remote';
 	import { Button } from './ui/button';
 
-	const { channelId } = $props<{ channelId: string }>();
+	type Channel = { ytChannelId: string; name: string };
 
-	const channels = $derived(await remoteGetAllChannels());
+	const { channelId, channels }: { channelId: string; channels: Channel[] } = $props();
 
 	const selectedChannel = $derived(channels?.find((channel) => channel.ytChannelId === channelId));
 </script>

@@ -3,6 +3,8 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import ChannelsList from '$lib/components/ChannelsList.svelte';
 	import { Plus } from '@lucide/svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -33,22 +35,5 @@
 		</Button>
 	</div>
 
-	<svelte:boundary>
-		{#snippet pending()}
-			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each Array(3) as _}
-					<div class="animate-pulse rounded-xl border border-border bg-card p-5">
-						<div class="h-6 w-32 rounded bg-muted"></div>
-						<div class="mt-2 h-4 w-48 rounded bg-muted"></div>
-						<div class="mt-5 grid grid-cols-2 gap-3">
-							<div class="h-24 rounded-lg bg-muted"></div>
-							<div class="h-24 rounded-lg bg-muted"></div>
-						</div>
-						<div class="mt-4 h-20 rounded-lg bg-muted"></div>
-					</div>
-				{/each}
-			</div>
-		{/snippet}
-		<ChannelsList />
-	</svelte:boundary>
+	<ChannelsList channels={data.channels} />
 </div>

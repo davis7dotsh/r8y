@@ -1,9 +1,16 @@
 <script lang="ts">
-	import { remoteGetChannelsWithStats } from '$lib/remote/channels.remote';
 	import { formatNumber } from '$lib/utils';
 	import { TrendingUp, Video, Eye } from '@lucide/svelte';
 
-	const channels = $derived(await remoteGetChannelsWithStats());
+	type Channel = {
+		ytChannelId: string;
+		name: string;
+		videoCount: number;
+		totalViews: number;
+		latestVideo: { title: string; viewCount: number } | null;
+	};
+
+	let { channels }: { channels: Channel[] } = $props();
 </script>
 
 {#if channels.length === 0}

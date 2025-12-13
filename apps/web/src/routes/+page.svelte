@@ -1,24 +1,13 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { getAuthStore } from '$lib/stores/AuthStore.svelte.js';
-	import RootLoader from '$lib/components/RootLoader.svelte';
+	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import Spinner from '$lib/components/ui/spinner/spinner.svelte';
 
-	const authStore = getAuthStore();
+	let { data, form } = $props();
 
-	let authPassword = $state('');
-
-	const handleSubmit = async (event: SubmitEvent) => {
-		event.preventDefault();
-		const result = await authStore.handleSignIn(authPassword);
-		if (!result) {
-			alert('Failed to sign in');
-			return;
-		}
-		goto('/app');
-	};
+	let isSubmitting = $state(false);
 </script>
 
 <svelte:head>
@@ -29,9 +18,7 @@
 	/>
 </svelte:head>
 
-{#if authStore.isLoading}
-	<RootLoader />
-{:else if authStore.isAuthenticated}
+{#if data.isAuthenticated}
 	<main class="flex min-h-screen w-full grow flex-col items-center justify-center">
 		<div class="flex flex-col items-center gap-6 text-center">
 			<div class="space-y-2">
@@ -48,18 +35,38 @@
 				<h1 class="text-foreground text-3xl font-bold">r8y 3.0</h1>
 				<p class="text-muted-foreground text-sm">Sign in to access your dashboard</p>
 			</div>
-			<form class="space-y-4" onsubmit={handleSubmit}>
+			<form
+				method="POST"
+				action="?/signin"
+				class="space-y-4"
+				use:enhance={() => {
+					isSubmitting = true;
+					return async ({ update }) => {
+						await update();
+						isSubmitting = false;
+					};
+				}}
+			>
 				<div class="space-y-2">
 					<Label for="password">Password</Label>
 					<Input
 						type="password"
 						id="password"
+						name="authPassword"
 						placeholder="Enter your password"
-						bind:value={authPassword}
 						class="w-full"
 					/>
 				</div>
-				<Button type="submit" class="w-full">Sign in</Button>
+				{#if form?.error}
+					<p class="text-sm text-destructive">{form.error}</p>
+				{/if}
+				<Button type="submit" class="w-full" disabled={isSubmitting}>
+					{#if isSubmitting}
+						<Spinner />
+					{:else}
+						Sign in
+					{/if}
+				</Button>
 			</form>
 		</div>
 	</main>
