@@ -11,7 +11,17 @@ class TodoistError extends TaggedError('TodoistError') {
 	}
 }
 
+const isNotificationsEnabled = () =>
+	Bun.env.NOTIFICATIONS_ENABLED === 'true' || Bun.env.NOTIFICATIONS_ENABLED === '1';
+
 const todoistService = Effect.gen(function* () {
+	if (!isNotificationsEnabled()) {
+		yield* Effect.log('Todoist notifications disabled (NOTIFICATIONS_ENABLED not set)');
+		return {
+			sendVideoLiveToTodoist: () => Effect.void
+		};
+	}
+
 	const todoistApiToken = yield* Effect.sync(() => Bun.env.TODOIST_API_TOKEN);
 
 	if (!todoistApiToken) {

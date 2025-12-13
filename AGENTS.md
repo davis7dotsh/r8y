@@ -37,3 +37,13 @@ The Effect Solutions CLI provides curated best practices and patterns for Effect
 - `effect-solutions search <term>` - Search topics by keyword
 
 **Local Effect Source:** The Effect repository is cloned to `~/.local/share/effect-solutions/effect` for reference. Use this to explore APIs, find usage examples, and understand implementation details when the documentation isn't enough.
+
+## btca
+
+Trigger: user says "use btca" (for codebase/docs questions).
+
+Run:
+
+- btca ask -t <tech> -q "<question>"
+
+Available <tech>: svelte, tailwindcss

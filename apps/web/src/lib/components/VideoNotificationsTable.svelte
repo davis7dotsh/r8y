@@ -4,13 +4,18 @@
 	import { formatRelativeTime } from '$lib/utils';
 	import { Bell } from '@lucide/svelte';
 
-	const {
-		videoData
-	}: {
-		videoData: Awaited<
-			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetVideoDetails>
-		>;
-	} = $props();
+	type Notification = {
+		type: string;
+		success: boolean;
+		message: string;
+		createdAt: Date;
+	};
+
+	type VideoData = {
+		notifications?: Notification[];
+	};
+
+	const { videoData }: { videoData: VideoData } = $props();
 
 	const getNotificationTypeLabel = (type: string) => {
 		return type

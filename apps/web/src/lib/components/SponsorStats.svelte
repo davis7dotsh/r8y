@@ -2,13 +2,17 @@
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Eye, Video, Calendar, TrendingUp } from '@lucide/svelte';
 
-	const {
-		sponsorData
-	}: {
-		sponsorData: Awaited<
-			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetSponsorDetails>
-		>;
-	} = $props();
+	type SponsorData = {
+		sponsor: { sponsorId: string; name: string; sponsorKey: string };
+		stats: {
+			totalViews: number;
+			totalAds: number;
+			avgViewsPerVideo: number;
+			lastPublishDate: Date | string | number | null;
+		};
+	};
+
+	const { sponsorData }: { sponsorData: SponsorData } = $props();
 </script>
 
 <div class="grid grid-cols-1 gap-4 md:grid-cols-4">

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannelNotifications } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -19,9 +18,15 @@
 	import { formatRelativeTime } from '$lib/utils';
 	import { Bell } from '@lucide/svelte';
 
-	const { channelId }: { channelId: string } = $props();
+	type Notification = {
+		type: string;
+		success: boolean;
+		message: string;
+		videoTitle: string;
+		createdAt: Date;
+	};
 
-	const notifications = $derived(await remoteGetChannelNotifications(channelId));
+	const { notifications }: { notifications: Notification[] } = $props();
 
 	const getNotificationTypeLabel = (type: string) => {
 		return type
@@ -29,8 +34,6 @@
 			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
 	};
-
-	type Notification = (typeof notifications)[number];
 
 	const columns: ColumnDef<Notification>[] = [
 		{

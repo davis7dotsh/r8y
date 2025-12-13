@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetLast7VideosByViews } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -19,11 +18,18 @@
 	import { formatNumber, formatDate, formatDaysAgo } from '$lib/utils';
 	import { Video } from '@lucide/svelte';
 
-	const { channelId } = $props<{ channelId: string }>();
+	type VideoType = {
+		ytVideoId: string;
+		title: string;
+		thumbnailUrl: string;
+		viewCount: number;
+		publishedAt: Date;
+		sponsor: { name: string; sponsorId: string } | null;
+	};
 
-	const fullData = $derived(await remoteGetLast7VideosByViews(channelId));
+	type FullData = { videos: VideoType[] };
 
-	type VideoType = (typeof fullData.videos)[number];
+	const { channelId, fullData }: { channelId: string; fullData: FullData } = $props();
 
 	const columns: ColumnDef<VideoType>[] = [
 		{

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannelSponsors } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -19,11 +18,18 @@
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Users } from '@lucide/svelte';
 
-	const { channelId }: { channelId: string } = $props();
+	type Sponsor = {
+		sponsorId: string;
+		name: string;
+		sponsorKey: string;
+		totalViews: number;
+		totalVideos: number;
+		avgViewsPerVideo: number;
+		lastVideoPublishedAt: Date | string | number | null;
+		lastVideoPublishedDaysAgo: number | null;
+	};
 
-	const sponsors = $derived(await remoteGetChannelSponsors(channelId));
-
-	type Sponsor = (typeof sponsors)[number];
+	const { channelId, sponsors }: { channelId: string; sponsors: Sponsor[] } = $props();
 
 	const columns: ColumnDef<Sponsor>[] = [
 		{

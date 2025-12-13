@@ -18,17 +18,20 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate } from '$lib/utils';
 
-	const {
-		sponsorData,
-		channelId
-	}: {
-		sponsorData: Awaited<
-			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetSponsorDetails>
-		>;
-		channelId: string;
-	} = $props();
+	type VideoType = {
+		ytVideoId: string;
+		title: string;
+		thumbnailUrl: string;
+		viewCount: number;
+		likeCount: number;
+		publishedAt: Date | string;
+	};
 
-	type VideoType = (typeof sponsorData.videos)[number];
+	type SponsorData = {
+		videos: VideoType[];
+	};
+
+	const { sponsorData, channelId }: { sponsorData: SponsorData; channelId: string } = $props();
 
 	const columns: ColumnDef<VideoType>[] = [
 		{

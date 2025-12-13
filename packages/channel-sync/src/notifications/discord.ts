@@ -53,7 +53,18 @@ comment link: <${fields.commentUrl}>
 \`\`\`
 `;
 
+const isNotificationsEnabled = () =>
+	Bun.env.NOTIFICATIONS_ENABLED === 'true' || Bun.env.NOTIFICATIONS_ENABLED === '1';
+
 const discordService = Effect.gen(function* () {
+	if (!isNotificationsEnabled()) {
+		yield* Effect.log('Discord notifications disabled (NOTIFICATIONS_ENABLED not set)');
+		return {
+			sendVideoLiveToDiscord: () => Effect.void,
+			sendFlaggedCommentToDiscord: () => Effect.void
+		};
+	}
+
 	const discordBotToken = yield* Effect.sync(() => Bun.env.DISCORD_BOT_TOKEN);
 	const discordChannelId = yield* Effect.sync(() => Bun.env.DISCORD_CHANNEL_ID);
 
