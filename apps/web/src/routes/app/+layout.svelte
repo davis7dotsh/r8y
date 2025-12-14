@@ -5,8 +5,6 @@
 	import { Moon, Sun } from '@lucide/svelte';
 	import GlobalAppCommand from '$lib/components/GlobalAppCommand.svelte';
 	import { setAuthStore } from '$lib/stores/AuthStore.svelte';
-	import { remoteSignOut } from '$lib/remote/auth.remote';
-	import { goto } from '$app/navigation';
 
 	const { children } = $props();
 
