@@ -3,8 +3,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import ChannelsList from '$lib/components/ChannelsList.svelte';
 	import { Plus } from '@lucide/svelte';
-
-	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -35,5 +33,5 @@
 		</Button>
 	</div>
 
-	<ChannelsList channels={data.channels} />
+	<ChannelsList />
 </div>

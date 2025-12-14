@@ -1,24 +1,19 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import Spinner from '$lib/components/ui/spinner/spinner.svelte';
+	import { remoteSignIn } from '$lib/remote/auth.remote.js';
+	import { getAuthStore } from '$lib/stores/AuthStore.svelte';
 
-	let { data, form } = $props();
+	const authStore = getAuthStore();
 
 	let isSubmitting = $state(false);
+	let error = $state<string | null>(null);
 </script>
 
-<svelte:head>
-	<title>r8y - YT Analytics & Sponsor Tracking</title>
-	<meta
-		name="description"
-		content="Track YouTube channel analytics, monitor sponsors, and analyze video performance across your channels."
-	/>
-</svelte:head>
-
-{#if data.isAuthenticated}
+{#if authStore.isAuthenticated}
 	<main class="flex min-h-screen w-full grow flex-col items-center justify-center">
 		<div class="flex flex-col items-center gap-6 text-center">
 			<div class="space-y-2">
@@ -36,16 +31,23 @@
 				<p class="text-muted-foreground text-sm">Sign in to access your dashboard</p>
 			</div>
 			<form
-				method="POST"
-				action="?/signin"
 				class="space-y-4"
-				use:enhance={() => {
+				{...remoteSignIn.enhance(async ({ submit }) => {
 					isSubmitting = true;
-					return async ({ update }) => {
-						await update();
+					error = null;
+					try {
+						await submit();
+						if (remoteSignIn.result?.success) {
+							await goto('/app');
+						} else {
+							error = 'Invalid password';
+						}
+					} catch {
+						error = 'Sign in failed';
+					} finally {
 						isSubmitting = false;
-					};
-				}}
+					}
+				})}
 			>
 				<div class="space-y-2">
 					<Label for="password">Password</Label>
@@ -57,8 +59,8 @@
 						class="w-full"
 					/>
 				</div>
-				{#if form?.error}
-					<p class="text-sm text-destructive">{form.error}</p>
+				{#if error}
+					<p class="text-destructive text-sm">{error}</p>
 				{/if}
 				<Button type="submit" class="w-full" disabled={isSubmitting}>
 					{#if isSubmitting}

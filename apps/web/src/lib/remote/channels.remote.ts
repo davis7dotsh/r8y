@@ -8,6 +8,13 @@ export const remoteSearchVideosAndSponsors = query(
 		channelId: z.string()
 	}),
 	async (args) => {
-		return authedRemoteRunner(({ db }) => db.searchVideosAndSponsors(args));
+		const { results } = await authedRemoteRunner(({ db }) => db.searchVideosAndSponsors(args));
+
+		return results;
 	}
 );
+
+export const remoteGetAllChannels = query(async () => {
+	const results = await authedRemoteRunner(({ db }) => db.getChannelsWithStats());
+	return results;
+});

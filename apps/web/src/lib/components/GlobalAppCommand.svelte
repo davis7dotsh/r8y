@@ -16,15 +16,6 @@
 
 	const channelId = $derived(params.channelId);
 
-	const searchResults = $derived(
-		await remoteSearchVideosAndSponsors({
-			channelId: channelId,
-			searchQuery: value
-		})
-	);
-
-	const results = $derived(searchResults.results);
-
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
 			e.preventDefault();
@@ -43,14 +34,14 @@
 <Button onclick={() => (open = !open)} size="sm" variant="ghost"
 	>Search
 	<kbd
-		class="pointer-events-none inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 select-none"
+		class="bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none"
 	>
 		<span class="text-md">⌘</span>k
 	</kbd>
 </Button>
 
 {#snippet Results()}
-	{#each results as item}
+	{#each await remoteSearchVideosAndSponsors({ channelId: channelId, searchQuery: value }) as item}
 		{#if item.type === 'sponsor'}
 			<Command.LinkItem
 				href="/app/view/sponsor?channelId={channelId}&sponsorId={item.data.sponsorId}"
