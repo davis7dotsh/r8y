@@ -1,26 +1,16 @@
 <script lang="ts">
-	import { remoteGetSponsorDetails, remoteGetChannelDetails } from '$lib/remote/channels.remote';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import SponsorStats from '$lib/components/SponsorStats.svelte';
 	import SponsorVideosTable from '$lib/components/SponsorVideosTable.svelte';
 	import SponsorMentionsTable from '$lib/components/SponsorMentionsTable.svelte';
 	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
-	import z from 'zod';
-	import { useSearchParams } from 'runed/kit';
 	import { ExternalLink } from '@lucide/svelte';
 
-	const sponsorParamsSchema = z.object({
-		channelId: z.string().default(''),
-		sponsorId: z.string().default('')
-	});
+	let { data } = $props();
 
-	const params = useSearchParams(sponsorParamsSchema);
-
-	const sponsorId = $derived(params.sponsorId);
-	const channelId = $derived(params.channelId);
-
-	const sponsor = $derived(await remoteGetSponsorDetails(sponsorId));
-	const channel = $derived(await remoteGetChannelDetails(channelId));
+	const channelId = $derived(data.channelId);
+	const sponsor = $derived(data.sponsor);
+	const channel = $derived(data.channel);
 </script>
 
 <svelte:head>
@@ -33,7 +23,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6 p-8">
-	<ChannelHeader {channelId} />
+	<ChannelHeader {channelId} channels={data.allChannels} />
 
 	<Breadcrumb.Root>
 		<Breadcrumb.List>

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannelVideos } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -19,10 +18,6 @@
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Video } from '@lucide/svelte';
 
-	const { channelId }: { channelId: string } = $props();
-
-	const videos = $derived(await remoteGetChannelVideos(channelId));
-
 	type VideoType = {
 		ytVideoId: string;
 		title: string;
@@ -35,6 +30,8 @@
 			sponsorId: string;
 		} | null;
 	};
+
+	const { channelId, videos }: { channelId: string; videos: VideoType[] } = $props();
 
 	const columns: ColumnDef<VideoType>[] = [
 		{

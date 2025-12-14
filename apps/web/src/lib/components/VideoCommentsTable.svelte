@@ -23,13 +23,25 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate } from '$lib/utils';
 
-	const {
-		videoData
-	}: {
-		videoData: Awaited<
-			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetVideoDetails>
-		>;
-	} = $props();
+	type Comment = {
+		ytCommentId: string;
+		author: string;
+		text: string;
+		likeCount: number;
+		replyCount: number;
+		publishedAt: Date;
+		isQuestion: boolean;
+		isSponsorMention: boolean;
+		isEditingMistake: boolean;
+		isPositiveComment: boolean;
+	};
+
+	type VideoData = {
+		video: { ytVideoId: string };
+		comments: Comment[];
+	};
+
+	const { videoData }: { videoData: VideoData } = $props();
 
 	let showQuestions = $state(false);
 	let showSponsorMentions = $state(false);
@@ -49,9 +61,7 @@
 		});
 	});
 
-	type Comments = ColumnDef<(typeof videoData.comments)[number]>[];
-
-	const columns: Comments = [
+	const columns: ColumnDef<Comment>[] = [
 		{
 			accessorKey: 'author',
 			header: 'Author',

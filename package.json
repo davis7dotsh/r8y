@@ -2,13 +2,7 @@
 	"name": "@r8y/root",
 	"private": true,
 	"scripts": {
-		"dev": "docker compose -f docker/docker-compose.yml up -d && dotenv -- turbo run dev",
-		"dev:no-db": "dotenv -- turbo run dev",
-		"db:up": "docker compose -f docker/docker-compose.yml up -d",
-		"db:down": "docker compose -f docker/docker-compose.yml down",
-		"db:destroy": "docker compose -f docker/docker-compose.yml down -v",
-		"db:setup": "docker compose -f docker/docker-compose.yml up -d && bun run scripts/wait-for-db.ts && bun run --filter @r8y/db db:push",
-		"db:push": "dotenv -- bun run --filter @r8y/db db:push",
+		"dev": "turbo run dev",
 		"check": "turbo run check",
 		"lint": "turbo run lint",
 		"format": "prettier --write \"**/*.{ts,tsx,svelte,js,json,md}\"",
@@ -16,7 +10,9 @@
 		"clean": "find . -type d \\( -name \"node_modules\" -o -name \"dist\" -o -name \"build\" -o -name \".turbo\" -o -name \".svelte-kit\" \\) -prune -exec rm -rf {} + 2>/dev/null || true",
 		"docker:web": "docker build -f docker/Dockerfile.web -t r8y-web .",
 		"docker:bg": "docker build -f docker/Dockerfile.bg -t r8y-bg .",
-		"prepare": "effect-language-service patch"
+		"prepare": "effect-language-service patch",
+		"db": "bun run --cwd packages/db src/cli.ts",
+		"backfill": "bun run --cwd packages/channel-sync src/scripts/backfill.ts backfill"
 	},
 	"devDependencies": {
 		"@effect/language-service": "^0.62.0",

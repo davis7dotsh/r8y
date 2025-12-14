@@ -1,24 +1,16 @@
 <script lang="ts">
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { remoteGetChannelDetails } from '$lib/remote/channels.remote';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import ChannelLastSevenVids from '$lib/components/ChannelLastSevenVids.svelte';
 	import ChannelHeader from '$lib/components/ChannelHeader.svelte';
-	import { useSearchParams } from 'runed/kit';
-	import z from 'zod';
 	import ChannelVideos from '$lib/components/ChannelVideos.svelte';
 	import ChannelNotifications from '$lib/components/ChannelNotifications.svelte';
 	import ChannelSponsorsTable from '$lib/components/ChannelSponsorsTable.svelte';
 
-	const viewParamsSchema = z.object({
-		channelId: z.string().default('')
-	});
+	let { data } = $props();
 
-	const params = useSearchParams(viewParamsSchema);
-
-	const channelId = $derived(params.channelId);
-
-	const channel = $derived(await remoteGetChannelDetails(channelId));
+	const channelId = $derived(data.channelId);
+	const channel = $derived(data.channel);
 
 	let tab = $state<'details' | 'recent' | 'sponsors'>('details');
 </script>
@@ -32,7 +24,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6 p-8">
-	<ChannelHeader {channelId} />
+	<ChannelHeader {channelId} channels={data.allChannels} />
 
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 		<Breadcrumb.Root>
@@ -57,31 +49,13 @@
 	</div>
 
 	{#if tab === 'details'}
-		<svelte:boundary>
-			{#snippet pending()}
-				<div class="animate-pulse space-y-6">
-					<div class="h-64 rounded-xl bg-muted"></div>
-					<div class="h-64 rounded-xl bg-muted"></div>
-				</div>
-			{/snippet}
-			<div class="space-y-6">
-				<ChannelVideos {channelId} />
-				<ChannelNotifications {channelId} />
-			</div>
-		</svelte:boundary>
+		<div class="space-y-6">
+			<ChannelVideos {channelId} videos={data.videos} />
+			<ChannelNotifications notifications={data.notifications} />
+		</div>
 	{:else if tab === 'recent'}
-		<svelte:boundary>
-			{#snippet pending()}
-				<div class="h-64 animate-pulse rounded-xl bg-muted"></div>
-			{/snippet}
-			<ChannelLastSevenVids {channelId} />
-		</svelte:boundary>
+		<ChannelLastSevenVids {channelId} fullData={data.last7Videos} />
 	{:else if tab === 'sponsors'}
-		<svelte:boundary>
-			{#snippet pending()}
-				<div class="h-64 animate-pulse rounded-xl bg-muted"></div>
-			{/snippet}
-			<ChannelSponsorsTable {channelId} />
-		</svelte:boundary>
+		<ChannelSponsorsTable {channelId} sponsors={data.sponsors} />
 	{/if}
 </div>
