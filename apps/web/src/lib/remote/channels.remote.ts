@@ -34,3 +34,24 @@ export const remoteGetAllChannels = query(async () => {
 	const results = await authedRemoteRunner(({ db }) => db.getChannelsWithStats());
 	return results;
 });
+
+export const remoteGetChannel = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannel(channelId));
+	}
+);
+
+export const remoteGet2025Videos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelVideos2025(channelId));
+	}
+);
+
+export const remoteGet2025Sponsors = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelSponsors2025(channelId));
+	}
+);

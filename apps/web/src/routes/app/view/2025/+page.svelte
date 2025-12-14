@@ -21,6 +21,7 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate, formatDaysAgo } from '$lib/utils';
 	import { Video, Users, Search } from '@lucide/svelte';
+	import SponsorTable from './SponsorTable.svelte';
 
 	let { data } = $props();
 
@@ -361,76 +362,17 @@
 		</div>
 
 		<!-- Sponsors Section -->
-		<div class="space-y-4">
-			<div class="flex items-center justify-between">
-				<div class="flex items-center gap-3">
-					<h2 class="text-foreground text-lg font-semibold">Sponsors</h2>
-					<Badge variant="secondary"
-						>{sponsorTable.getFilteredRowModel().rows.length} sponsors</Badge
-					>
-				</div>
-				<div class="relative w-64">
-					<Search
-						class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-					/>
-					<Input
-						type="text"
-						placeholder="Search sponsors..."
-						class="pl-9"
-						bind:value={sponsorSearch}
-					/>
-				</div>
-			</div>
-			{#if data2025.sponsors.length === 0}
-				<div
-					class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
-				>
-					<div class="bg-muted rounded-full p-3">
-						<Users class="text-muted-foreground h-6 w-6" />
-					</div>
-					<p class="text-muted-foreground mt-3 text-sm">No sponsors with videos in 2025</p>
-				</div>
-			{:else}
-				<div class="border-border max-h-96 overflow-auto rounded-xl border">
-					<Table.Root>
-						<Table.Header class="bg-muted/80 sticky top-0 z-10">
-							{#key sponsorSorting}
-								{#each sponsorTable.getHeaderGroups() as headerGroup (headerGroup.id)}
-									<Table.Row class="hover:bg-transparent">
-										{#each headerGroup.headers as header (header.id)}
-											<Table.Head
-												class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
-											>
-												{#if !header.isPlaceholder}
-													<FlexRender
-														content={header.column.columnDef.header}
-														context={header.getContext()}
-													/>
-												{/if}
-											</Table.Head>
-										{/each}
-									</Table.Row>
-								{/each}
-							{/key}
-						</Table.Header>
-						<Table.Body>
-							{#each sponsorTable.getRowModel().rows as row (row.id)}
-								<Table.Row class="group">
-									{#each row.getVisibleCells() as cell (cell.id)}
-										<Table.Cell class="py-3">
-											<FlexRender
-												content={cell.column.columnDef.cell}
-												context={cell.getContext()}
-											/>
-										</Table.Cell>
-									{/each}
-								</Table.Row>
-							{/each}
-						</Table.Body>
-					</Table.Root>
-				</div>
-			{/if}
-		</div>
+		<svelte:boundary>
+			{#snippet pending()}
+				<div>loading sponsors...</div>
+			{/snippet}
+
+			{#snippet failed(e, r)}
+				<div>error loading sponsors: {(e as Error).message}</div>
+			{/snippet}
+
+			<SponsorTable {channelId} />
+		</svelte:boundary>
 
 		<!-- Videos Section -->
 		<div class="space-y-4">
@@ -440,15 +382,8 @@
 					<Badge variant="secondary">{videoTable.getFilteredRowModel().rows.length} videos</Badge>
 				</div>
 				<div class="relative w-64">
-					<Search
-						class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-					/>
-					<Input
-						type="text"
-						placeholder="Search videos..."
-						class="pl-9"
-						bind:value={videoSearch}
-					/>
+					<Search class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+					<Input type="text" placeholder="Search videos..." class="pl-9" bind:value={videoSearch} />
 				</div>
 			</div>
 			{#if data2025.videos.length === 0}
