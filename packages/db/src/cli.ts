@@ -62,6 +62,9 @@ const program = (args: ReadonlyArray<string>) =>
 					yield* Effect.tryPromise(() => db.delete(DB_SCHEMA.notifications));
 					yield* Effect.log('Wiped notifications');
 
+					yield* Effect.tryPromise(() => db.delete(DB_SCHEMA.channels));
+					yield* Effect.log('Wiped channels');
+
 					yield* Effect.log('DB tables wiped successfully');
 				})
 			);
@@ -100,7 +103,7 @@ const program = (args: ReadonlyArray<string>) =>
 							).pipe(
 								Effect.matchEffect({
 									onSuccess: (result) =>
-										Effect.log(`Channel ${channel.name} added: ${result.toString()}`),
+										Effect.log(`Channel ${channel.name} added: ${result[0]?.insertedId}`),
 									onFailure: (err) =>
 										Effect.log(
 											`Error adding channel ${channel.name} (it might already exist):\n ${err.cause}`

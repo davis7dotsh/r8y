@@ -13,7 +13,7 @@ import {
 	count,
 	sum,
 	max,
-	like
+	ilike
 } from '@r8y/db';
 import { Array, Effect, pipe } from 'effect';
 import { TaggedError } from 'effect/Data';
@@ -31,10 +31,10 @@ export class DbError extends TaggedError('DbError') {
 const generateId = () => randomBytes(16).toString('hex');
 
 const dbService = Effect.gen(function* () {
-	const dbUrl = yield* Effect.sync(() => env.MYSQL_URL);
+	const dbUrl = yield* Effect.sync(() => env.DATABASE_URL);
 
 	if (!dbUrl) {
-		return yield* Effect.die('MYSQL_URL is not set...');
+		return yield* Effect.die('DATABASE_URL is not set...');
 	}
 
 	const drizzle = yield* Effect.acquireRelease(
@@ -957,8 +957,8 @@ const dbService = Effect.gen(function* () {
 										.where(
 											and(
 												or(
-													like(DB_SCHEMA.videos.title, `%${searchQuery}%`),
-													like(DB_SCHEMA.videos.ytVideoId, `%${searchQuery}%`)
+													ilike(DB_SCHEMA.videos.title, `%${searchQuery}%`),
+													ilike(DB_SCHEMA.videos.ytVideoId, `%${searchQuery}%`)
 												),
 												eq(DB_SCHEMA.videos.ytChannelId, channelId)
 											)
@@ -986,8 +986,8 @@ const dbService = Effect.gen(function* () {
 								.from(DB_SCHEMA.channels)
 								.where(
 									or(
-										like(DB_SCHEMA.channels.name, `%${searchQuery}%`),
-										like(DB_SCHEMA.channels.ytChannelId, `%${searchQuery}%`)
+										ilike(DB_SCHEMA.channels.name, `%${searchQuery}%`),
+										ilike(DB_SCHEMA.channels.ytChannelId, `%${searchQuery}%`)
 									)
 								)
 								.limit(4),
@@ -1014,8 +1014,8 @@ const dbService = Effect.gen(function* () {
 										.where(
 											and(
 												or(
-													like(DB_SCHEMA.sponsors.sponsorKey, `%${searchQuery}%`),
-													like(DB_SCHEMA.sponsors.name, `%${searchQuery}%`)
+													ilike(DB_SCHEMA.sponsors.sponsorKey, `%${searchQuery}%`),
+													ilike(DB_SCHEMA.sponsors.name, `%${searchQuery}%`)
 												),
 												eq(DB_SCHEMA.sponsors.ytChannelId, channelId)
 											)

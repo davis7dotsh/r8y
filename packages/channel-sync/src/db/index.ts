@@ -1,4 +1,4 @@
-import { DB_SCHEMA, getDrizzleInstance, eq, inArray, sql, type SQL } from '@r8y/db';
+import { DB_SCHEMA, getDrizzleInstance, eq, inArray, sql } from '@r8y/db';
 import { Effect } from 'effect';
 import { TaggedError } from 'effect/Data';
 import { randomBytes } from 'node:crypto';
@@ -14,10 +14,10 @@ class DbError extends TaggedError('DbError') {
 const generateId = () => randomBytes(16).toString('hex');
 
 const dbService = Effect.gen(function* () {
-	const dbUrl = yield* Effect.sync(() => Bun.env.MYSQL_URL);
+	const dbUrl = yield* Effect.sync(() => Bun.env.DATABASE_URL);
 
 	if (!dbUrl) {
-		return yield* Effect.die('MYSQL_URL is not set...');
+		return yield* Effect.die('DATABASE_URL is not set...');
 	}
 
 	const drizzle = yield* Effect.acquireRelease(
@@ -477,37 +477,16 @@ const dbService = Effect.gen(function* () {
 			}>;
 		}) =>
 			Effect.gen(function* () {
-				const idArray = data.comments.map((comment) => comment.ytCommentId);
+				if (data.comments.length === 0) {
+					return undefined;
+				}
 
-				const existingComments = yield* Effect.gen(function* () {
-					const comments = yield* Effect.tryPromise({
-						try: () =>
-							drizzle
-								.select()
-								.from(DB_SCHEMA.comments)
-								.where(inArray(DB_SCHEMA.comments.ytCommentId, idArray)),
-						catch: (err) =>
-							new DbError('Failed to get comments by ids', {
-								cause: err
-							})
-					});
-
-					return comments.map((comment) => comment.ytCommentId);
-				});
-
-				const commentsToInsert = data.comments.filter(
-					(comment) => !existingComments.includes(comment.ytCommentId)
-				);
-
-				const commentsToUpdate = data.comments.filter((comment) =>
-					existingComments.includes(comment.ytCommentId)
-				);
-
-				if (commentsToInsert.length > 0) {
-					yield* Effect.tryPromise({
-						try: () =>
-							drizzle.insert(DB_SCHEMA.comments).values(
-								commentsToInsert.map((comment) => ({
+				yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.insert(DB_SCHEMA.comments)
+							.values(
+								data.comments.map((comment) => ({
 									ytCommentId: comment.ytCommentId,
 									ytVideoId: data.ytVideoId,
 									text: comment.text,
@@ -521,41 +500,19 @@ const dbService = Effect.gen(function* () {
 									isPositiveComment: false,
 									isProcessed: false
 								}))
-							),
-						catch: (err) =>
-							new DbError('Failed to bulk insert comments', {
-								cause: err
-							})
-					});
-				}
-
-				if (commentsToUpdate.length > 0) {
-					const sqlChunks: SQL[] = [];
-					const ids: string[] = [];
-
-					sqlChunks.push(sql`(case`);
-					for (const comment of commentsToUpdate) {
-						sqlChunks.push(
-							sql`when ${DB_SCHEMA.comments.ytCommentId} = ${comment.ytCommentId} then ${comment.likeCount}`
-						);
-						ids.push(comment.ytCommentId);
-					}
-					sqlChunks.push(sql`end)`);
-
-					const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
-
-					yield* Effect.tryPromise({
-						try: () =>
-							drizzle
-								.update(DB_SCHEMA.comments)
-								.set({ likeCount: finalSql })
-								.where(inArray(DB_SCHEMA.comments.ytCommentId, ids)),
-						catch: (err) =>
-							new DbError('Failed to bulk update comments', {
-								cause: err
-							})
-					});
-				}
+							)
+							.onConflictDoUpdate({
+								target: DB_SCHEMA.comments.ytCommentId,
+								set: {
+									likeCount: sql.raw(`excluded.${DB_SCHEMA.comments.likeCount.name}`),
+									replyCount: sql.raw(`excluded.${DB_SCHEMA.comments.replyCount.name}`)
+								}
+							}),
+					catch: (err) =>
+						new DbError('Failed to bulk upsert comments', {
+							cause: err
+						})
+				});
 
 				return undefined;
 			})

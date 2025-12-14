@@ -11,7 +11,8 @@
 		"docker:web": "docker build -f docker/Dockerfile.web -t r8y-web .",
 		"docker:bg": "docker build -f docker/Dockerfile.bg -t r8y-bg .",
 		"prepare": "effect-language-service patch",
-		"db": "bun run --cwd packages/db src/cli.ts"
+		"db": "bun run --cwd packages/db src/cli.ts",
+		"backfill": "bun run --cwd packages/channel-sync src/scripts/backfill.ts backfill"
 	},
 	"devDependencies": {
 		"@effect/language-service": "^0.62.0",

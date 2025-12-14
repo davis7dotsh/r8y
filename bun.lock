@@ -38,21 +38,6 @@
         "prettier": "^3.7.4",
       },
     },
-    "apps/helpers": {
-      "name": "@r8y/helpers",
-      "dependencies": {
-        "@effect/cli": "^0.72.1",
-        "@effect/platform": "^0.93.8",
-        "@effect/platform-bun": "^0.86.0",
-        "@r8y/channel-sync": "*",
-        "@r8y/db": "*",
-        "effect": "^3.19.12",
-      },
-      "devDependencies": {
-        "@types/bun": "latest",
-        "prettier": "^3.6.2",
-      },
-    },
     "apps/web": {
       "name": "@r8y/web",
       "version": "3.0.1",
@@ -93,18 +78,22 @@
     "packages/channel-sync": {
       "name": "@r8y/channel-sync",
       "dependencies": {
-        "@doist/todoist-api-typescript": "^6.0.0",
-        "@openrouter/ai-sdk-provider": "^1.2.0",
-        "ai": "^5.0.87",
-        "discord.js": "^14.24.2",
-        "effect": "^3.19.5",
+        "@ai-sdk/groq": "^2.0.33",
+        "@doist/todoist-api-typescript": "^6.2.1",
+        "@openrouter/ai-sdk-provider": "^1.5.3",
+        "ai": "^5.0.113",
+        "discord.js": "^14.25.1",
+        "effect": "^3.19.12",
         "googleapis": "^164.1.0",
         "neverthrow": "^8.2.0",
-        "zod": "^4.1.12",
+        "zod": "^4.1.13",
       },
       "devDependencies": {
+        "@effect/cli": "^0.72.1",
+        "@effect/platform": "^0.93.8",
+        "@effect/platform-bun": "^0.86.0",
         "@types/bun": "latest",
-        "prettier": "^3.6.2",
+        "prettier": "^3.7.4",
       },
       "peerDependencies": {
         "@r8y/db": "*",
@@ -131,6 +120,8 @@
   },
   "packages": {
     "@ai-sdk/gateway": ["@ai-sdk/gateway@2.0.21", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.19", "@vercel/oidc": "3.0.5" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-BwV7DU/lAm3Xn6iyyvZdWgVxgLu3SNXzl5y57gMvkW4nGhAOV5269IrJzQwGt03bb107sa6H6uJwWxc77zXoGA=="],
+
+    "@ai-sdk/groq": ["@ai-sdk/groq@2.0.33", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.19" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-FWGl7xNr88NBveao3y9EcVWYUt9ABPrwLFY7pIutSNgaTf32vgvyhREobaMrLU4Scr5G/2tlNqOPZ5wkYMaZig=="],
 
     "@ai-sdk/provider": ["@ai-sdk/provider@2.0.0", "", { "dependencies": { "json-schema": "^0.4.0" } }, "sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA=="],
 
@@ -313,8 +304,6 @@
     "@r8y/channel-sync": ["@r8y/channel-sync@workspace:packages/channel-sync"],
 
     "@r8y/db": ["@r8y/db@workspace:packages/db"],
-
-    "@r8y/helpers": ["@r8y/helpers@workspace:apps/helpers"],
 
     "@r8y/web": ["@r8y/web@workspace:apps/web"],
 
