@@ -9,30 +9,33 @@
 	import DataTableColumnHeader from '$lib/components/ui/data-table/data-table-column-header.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import {
 		getCoreRowModel,
 		getSortedRowModel,
+		getFilteredRowModel,
 		type ColumnDef,
 		type SortingState
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate, formatDaysAgo } from '$lib/utils';
-	import { Video } from '@lucide/svelte';
-	import { remoteGetLast7Videos } from '$lib/remote/channels.remote';
+	import { Video, Search } from '@lucide/svelte';
+	import { remoteGet2025Videos } from '$lib/remote/channels.remote';
+
+	const { channelId }: { channelId: string } = $props();
+
+	const videos = $derived(await remoteGet2025Videos(channelId));
 
 	type VideoType = {
 		ytVideoId: string;
 		title: string;
 		thumbnailUrl: string;
 		viewCount: number;
+		likeCount: number;
 		publishedAt: Date;
-		sponsor: { name: string; sponsorId: string } | null;
+		sponsor: { sponsorId: string; name: string } | null;
 	};
 
-	const { channelId }: { channelId: string } = $props();
-
-	const fullData = $derived(await remoteGetLast7Videos(channelId));
-
-	const columns: ColumnDef<VideoType>[] = [
+	const videoColumns: ColumnDef<VideoType>[] = [
 		{
 			accessorKey: 'thumbnailUrl',
 			header: '',
@@ -103,6 +106,24 @@
 			}
 		},
 		{
+			accessorKey: 'likeCount',
+			header: ({ column }) =>
+				renderComponent(DataTableColumnHeader, {
+					title: 'Likes',
+					isSorted: column.getIsSorted(),
+					onclick: column.getToggleSortingHandler()
+				}),
+			cell: ({ row }) => {
+				const snippet = createRawSnippet<[{ likes: number }]>((params) => {
+					const { likes } = params();
+					return {
+						render: () => `<span class="tabular-nums font-medium">${formatNumber(likes)}</span>`
+					};
+				});
+				return renderSnippet(snippet, { likes: row.original.likeCount });
+			}
+		},
+		{
 			accessorKey: 'publishedAt',
 			header: ({ column }) =>
 				renderComponent(DataTableColumnHeader, {
@@ -127,52 +148,74 @@
 		}
 	];
 
-	let sorting = $state<SortingState>([{ id: 'publishedAt', desc: true }]);
+	let videoSorting = $state<SortingState>([{ id: 'publishedAt', desc: true }]);
+	let videoSearch = $state('');
 
-	const table = createSvelteTable({
-		get data() {
-			return fullData.videos;
-		},
-		columns,
-		state: {
-			get sorting() {
-				return sorting;
-			}
-		},
-		onSortingChange: (updater) => {
-			if (typeof updater === 'function') {
-				sorting = updater(sorting);
-			} else {
-				sorting = updater;
-			}
-		},
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel()
-	});
+	const videoTable = $derived(
+		createSvelteTable({
+			get data() {
+				return (videos ?? []) as VideoType[];
+			},
+			columns: videoColumns,
+			state: {
+				get sorting() {
+					return videoSorting;
+				},
+				get globalFilter() {
+					return videoSearch;
+				}
+			},
+			onSortingChange: (updater) => {
+				if (typeof updater === 'function') {
+					videoSorting = updater(videoSorting);
+				} else {
+					videoSorting = updater;
+				}
+			},
+			onGlobalFilterChange: (updater) => {
+				if (typeof updater === 'function') {
+					videoSearch = updater(videoSearch);
+				} else {
+					videoSearch = updater;
+				}
+			},
+			globalFilterFn: (row, _columnId, filterValue) => {
+				const search = filterValue.toLowerCase();
+				return row.original.title.toLowerCase().includes(search);
+			},
+			getCoreRowModel: getCoreRowModel(),
+			getSortedRowModel: getSortedRowModel(),
+			getFilteredRowModel: getFilteredRowModel()
+		})
+	);
 </script>
 
 <div class="space-y-4">
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<h2 class="text-foreground text-lg font-semibold">Last 7 Days</h2>
-			<Badge variant="secondary">{fullData.videos.length} videos</Badge>
+			<h2 class="text-foreground text-lg font-semibold">Videos</h2>
+			<Badge variant="secondary">{videoTable.getFilteredRowModel().rows.length} videos</Badge>
+		</div>
+		<div class="relative w-64">
+			<Search class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+			<Input type="text" placeholder="Search videos..." class="pl-9" bind:value={videoSearch} />
 		</div>
 	</div>
-	{#if fullData.videos.length === 0}
+	{#if videos.length === 0}
 		<div
 			class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
 		>
 			<div class="bg-muted rounded-full p-3">
 				<Video class="text-muted-foreground h-6 w-6" />
 			</div>
-			<p class="text-muted-foreground mt-3 text-sm">No videos published in the last 7 days</p>
+			<p class="text-muted-foreground mt-3 text-sm">No videos in 2025</p>
 		</div>
 	{:else}
-		<div class="border-border overflow-hidden rounded-xl border">
+		<div class="border-border max-h-[600px] overflow-auto rounded-xl border">
 			<Table.Root>
-				<Table.Header class="bg-muted/80">
-					{#key sorting}
-						{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+				<Table.Header class="bg-muted/80 sticky top-0 z-10">
+					{#key videoSorting}
+						{#each videoTable.getHeaderGroups() as headerGroup (headerGroup.id)}
 							<Table.Row class="hover:bg-transparent">
 								{#each headerGroup.headers as header (header.id)}
 									<Table.Head
@@ -191,11 +234,14 @@
 					{/key}
 				</Table.Header>
 				<Table.Body>
-					{#each table.getRowModel().rows as row (row.id)}
+					{#each videoTable.getRowModel().rows as row (row.id)}
 						<Table.Row class="group">
 							{#each row.getVisibleCells() as cell (cell.id)}
 								<Table.Cell class="py-3">
-									<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+									<FlexRender
+										content={cell.column.columnDef.cell}
+										context={cell.getContext()}
+									/>
 								</Table.Cell>
 							{/each}
 						</Table.Row>

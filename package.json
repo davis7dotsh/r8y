@@ -2,7 +2,7 @@
 	"name": "@r8y/root",
 	"private": true,
 	"scripts": {
-		"dev": "turbo run dev",
+		"dev": "turbo run dev --ui tui",
 		"check": "turbo run check",
 		"lint": "turbo run lint",
 		"format": "prettier --write \"**/*.{ts,tsx,svelte,js,json,md}\"",

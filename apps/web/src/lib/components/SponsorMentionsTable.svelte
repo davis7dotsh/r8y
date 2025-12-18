@@ -207,7 +207,7 @@
 						{#each table.getRowModel().rows as row (row.id)}
 							<Table.Row class="group">
 								{#each row.getVisibleCells() as cell (cell.id)}
-									<Table.Cell style="width: {cell.column.getSize()}px" class="py-3">
+									<Table.Cell style="width: {cell.column.getSize()}px" class="py-3 overflow-hidden">
 										<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 									</Table.Cell>
 								{/each}

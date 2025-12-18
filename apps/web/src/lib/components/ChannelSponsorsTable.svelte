@@ -17,6 +17,7 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Users } from '@lucide/svelte';
+	import { remoteGetChannelSponsors } from '$lib/remote/channels.remote';
 
 	type Sponsor = {
 		sponsorId: string;
@@ -29,7 +30,9 @@
 		lastVideoPublishedDaysAgo: number | null;
 	};
 
-	const { channelId, sponsors }: { channelId: string; sponsors: Sponsor[] } = $props();
+	const { channelId }: { channelId: string } = $props();
+
+	const sponsors = $derived(await remoteGetChannelSponsors(channelId));
 
 	const columns: ColumnDef<Sponsor>[] = [
 		{
