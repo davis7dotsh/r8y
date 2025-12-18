@@ -504,8 +504,8 @@ const dbService = Effect.gen(function* () {
 							.onConflictDoUpdate({
 								target: DB_SCHEMA.comments.ytCommentId,
 								set: {
-									likeCount: sql.raw(`excluded.${DB_SCHEMA.comments.likeCount.name}`),
-									replyCount: sql.raw(`excluded.${DB_SCHEMA.comments.replyCount.name}`)
+									likeCount: sql`excluded.like_count`,
+									replyCount: sql`excluded.reply_count`
 								}
 							}),
 					catch: (err) =>
