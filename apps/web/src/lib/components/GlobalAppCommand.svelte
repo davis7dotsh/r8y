@@ -12,6 +12,8 @@
 		channelId: z.string().default('')
 	});
 
+	const asdf = '';
+
 	const params = useSearchParams(searchParamsSchema);
 
 	const channelId = $derived(params.channelId);

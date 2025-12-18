@@ -1,18 +1,10 @@
-import { remoteGetChannel } from '$lib/remote/channels.remote';
 import type { DB_SELECT_MODELS } from '@r8y/db';
-import { createContext, onMount } from 'svelte';
+import { createContext } from 'svelte';
 
 class ChannelStore {
-	channel = $state<DB_SELECT_MODELS['channels'] | null>(null);
-	channelId: string;
+	private channels = new Map<string, DB_SELECT_MODELS['channels']>();
 
-	constructor(channelId: string) {
-		this.channelId = channelId;
-		onMount(async () => {
-			const channel = await remoteGetChannel(this.channelId);
-			this.channel = channel;
-		});
-	}
+	constructor() {}
 }
 
 const [internalGetChannelStore, internalSetChannelStore] = createContext<ChannelStore>();
@@ -23,7 +15,7 @@ export const getChannelStore = () => {
 	return store;
 };
 
-export const setChannelStore = (channelId: string) => {
-	const store = new ChannelStore(channelId);
+export const setChannelStore = () => {
+	const store = new ChannelStore();
 	internalSetChannelStore(store);
 };

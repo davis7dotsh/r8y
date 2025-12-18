@@ -1,16 +1,22 @@
 <script lang="ts">
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+	import z from 'zod';
 	import SponsorTable from './SponsorTable.svelte';
 	import VideoTable from './VideoTable.svelte';
+	import { useSearchParams } from 'runed/kit';
+	import { remoteGetChannel } from '$lib/remote/channels.remote.js';
 
-	let { data } = $props();
+	const paramsSchema = z.object({
+		channelId: z.string().default('')
+	});
 
-	const channelId = $derived(data.channelId);
-	const channel = $derived(data.channel);
+	const searchParams = useSearchParams(paramsSchema);
+
+	const channelId = $derived(searchParams.channelId);
 </script>
 
 <svelte:head>
-	<title>2025 Analytics{channel ? ` - ${channel.name}` : ''} - r8y 3.0</title>
+	<title>2025 Analytics</title>
 	<meta name="description" content="View 2025 analytics for sponsors and videos." />
 </svelte:head>
 
@@ -27,7 +33,7 @@
 					<Breadcrumb.Separator />
 					<Breadcrumb.Item>
 						<Breadcrumb.Link href={`/app/view/channel?channelId=${channelId}`}>
-							{channel?.name ?? 'Channel'}
+							{(await remoteGetChannel(channelId)).name}
 						</Breadcrumb.Link>
 					</Breadcrumb.Item>
 					<Breadcrumb.Separator />

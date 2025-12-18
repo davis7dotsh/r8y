@@ -122,7 +122,7 @@
 	const sponsorTable = $derived(
 		createSvelteTable({
 			get data() {
-				return (sponsors ?? []) as SponsorType[];
+				return sponsors;
 			},
 			columns: sponsorColumns,
 			state: {
