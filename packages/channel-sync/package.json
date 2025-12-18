@@ -21,7 +21,8 @@
 	"dependencies": {
 		"@ai-sdk/groq": "^2.0.33",
 		"@doist/todoist-api-typescript": "^6.2.1",
-		"ai": "^5.0.113",
+		"@openrouter/ai-sdk-provider": "^1.5.4",
+		"ai": "^5.0.115",
 		"discord.js": "^14.25.1",
 		"effect": "^3.19.12",
 		"googleapis": "^164.1.0",

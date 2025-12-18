@@ -106,7 +106,7 @@ const channelSyncService = Effect.gen(function* () {
 
 			const comments = yield* youtube.getVideoComments({
 				ytVideoId: args.ytVideoId,
-				maxResults: 55
+				maxResults: 100
 			});
 
 			yield* db.bulkUpsertComments({

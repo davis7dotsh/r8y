@@ -2,7 +2,7 @@ import { generateObject } from 'ai';
 import z from 'zod';
 import { Effect, Schedule } from 'effect';
 import { TaggedError } from 'effect/Data';
-import { createGroq } from '@ai-sdk/groq';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 const retrySchedule = Schedule.intersect(Schedule.spaced('1 minute'), Schedule.recurs(3));
 
@@ -15,14 +15,24 @@ class AiError extends TaggedError('AiError') {
 }
 
 const aiService = Effect.gen(function* () {
-	const groqApiKey = yield* Effect.sync(() => Bun.env.GROQ_API_KEY);
+	const openrouterApiKey = yield* Effect.sync(() => Bun.env.OPENROUTER_API_KEY);
 
-	if (!groqApiKey) {
-		return yield* Effect.die('GROQ_API_KEY is not set');
+	if (!openrouterApiKey) {
+		return yield* Effect.die('OPENROUTER_API_KEY is not set');
 	}
 
-	const groq = createGroq({
-		apiKey: groqApiKey
+	const openrouter = createOpenRouter({
+		apiKey: openrouterApiKey,
+		headers: {
+			'HTTP-Referer': 'https://r8y.app',
+			'X-Title': 'r8y'
+		}
+	});
+
+	const hmm = openrouter('openai/gpt-oss-120b', {
+		provider: {
+			only: ['groq']
+		}
 	});
 
 	return {
@@ -38,7 +48,8 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							model: groq('openai/gpt-oss-120b'),
+							// @ts-expect-error - AI SDK is just stupid
+							model: hmm,
 							prompt: `Your job is to classify this youtube video's comment. You need to return a boolean true/false for each of the following criteria:
 
             - The comment is flagging an editing mistake
@@ -73,7 +84,8 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							model: groq('openai/gpt-oss-120b'),
+							// @ts-expect-error - AI SDK is just stupid
+							model: hmm,
 							prompt: `Your job is to parse this youtube video's description to find the sponsor, and a key to identify the sponsor in the db. The following will tell you how to get each of those for this channel:
         
         ${data.sponsorPrompt}
