@@ -28,7 +28,7 @@
 			try {
 				await submit();
 				if (remoteCreateChannel.result?.success) {
-					await goto(`/app/view/channel?channelId=${remoteCreateChannel.result.ytChannelId}`);
+					await goto(`/app/view/channel/overview?channelId=${remoteCreateChannel.result.ytChannelId}`);
 				} else {
 					error = 'Failed to create channel';
 				}

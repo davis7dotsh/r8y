@@ -31,7 +31,7 @@
 							<span class="text-destructive">Error</span>
 						{/snippet}
 						{#if item.isLink}
-							<Breadcrumb.Link href="/app/view/channel?channelId={item.channelId}">
+							<Breadcrumb.Link href="/app/view/channel/overview?channelId={item.channelId}">
 								{(await remoteGetChannel(item.channelId)).name}
 							</Breadcrumb.Link>
 						{:else}

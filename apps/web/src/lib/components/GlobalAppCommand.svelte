@@ -53,7 +53,7 @@
 			</Command.LinkItem>
 		{:else if item.type === 'channel'}
 			<Command.LinkItem
-				href="/app/view/channel?channelId={item.data.ytChannelId}"
+				href="/app/view/channel/overview?channelId={item.data.ytChannelId}"
 				onSelect={closeDialog}
 			>
 				CHANNEL: {item.data.name}

@@ -33,7 +33,7 @@
 		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each channels as channel}
 				<a
-					href="/app/view/channel?channelId={channel.ytChannelId}"
+					href="/app/view/channel/overview?channelId={channel.ytChannelId}"
 					class="group border-border bg-card hover:border-primary/50 hover:shadow-primary/5 relative overflow-hidden rounded-xl border transition-all hover:shadow-lg"
 				>
 					<div class="p-5">
