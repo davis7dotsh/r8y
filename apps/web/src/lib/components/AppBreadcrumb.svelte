@@ -30,13 +30,12 @@
 						{#snippet failed()}
 							<span class="text-destructive">Error</span>
 						{/snippet}
-						{@const channel = await remoteGetChannel(item.channelId)}
 						{#if item.isLink}
 							<Breadcrumb.Link href="/app/view/channel?channelId={item.channelId}">
-								{channel.name}
+								{(await remoteGetChannel(item.channelId)).name}
 							</Breadcrumb.Link>
 						{:else}
-							<Breadcrumb.Page>{channel.name}</Breadcrumb.Page>
+							<Breadcrumb.Page>{(await remoteGetChannel(item.channelId)).name}</Breadcrumb.Page>
 						{/if}
 					</svelte:boundary>
 				{/if}
