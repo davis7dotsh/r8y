@@ -17,6 +17,7 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Video } from '@lucide/svelte';
+	import { remoteGetChannelVideos } from '$lib/remote/channels.remote';
 
 	type VideoType = {
 		ytVideoId: string;
@@ -31,7 +32,9 @@
 		} | null;
 	};
 
-	const { channelId, videos }: { channelId: string; videos: VideoType[] } = $props();
+	const { channelId }: { channelId: string } = $props();
+
+	const videos = $derived(await remoteGetChannelVideos(channelId));
 
 	const columns: ColumnDef<VideoType>[] = [
 		{

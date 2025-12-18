@@ -1,10 +1,9 @@
 <script lang="ts">
-	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+	import AppBreadcrumb from '$lib/components/AppBreadcrumb.svelte';
 	import z from 'zod';
 	import SponsorTable from './SponsorTable.svelte';
 	import VideoTable from './VideoTable.svelte';
 	import { useSearchParams } from 'runed/kit';
-	import { remoteGetChannel } from '$lib/remote/channels.remote.js';
 
 	const paramsSchema = z.object({
 		channelId: z.string().default('')
@@ -25,23 +24,12 @@
 		<p class="text-muted-foreground">Please select a channel</p>
 	{:else}
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-			<Breadcrumb.Root>
-				<Breadcrumb.List>
-					<Breadcrumb.Item>
-						<Breadcrumb.Link href="/app">Channels</Breadcrumb.Link>
-					</Breadcrumb.Item>
-					<Breadcrumb.Separator />
-					<Breadcrumb.Item>
-						<Breadcrumb.Link href={`/app/view/channel?channelId=${channelId}`}>
-							{(await remoteGetChannel(channelId)).name}
-						</Breadcrumb.Link>
-					</Breadcrumb.Item>
-					<Breadcrumb.Separator />
-					<Breadcrumb.Item>
-						<Breadcrumb.Page>2025 Analytics</Breadcrumb.Page>
-					</Breadcrumb.Item>
-				</Breadcrumb.List>
-			</Breadcrumb.Root>
+			<AppBreadcrumb
+				items={[
+					{ type: 'channel', channelId, isLink: true },
+					{ type: 'page', label: '2025 Analytics' }
+				]}
+			/>
 		</div>
 
 		<!-- Sponsors Section -->

@@ -17,6 +17,7 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate, formatDaysAgo } from '$lib/utils';
 	import { Video } from '@lucide/svelte';
+	import { remoteGetLast7Videos } from '$lib/remote/channels.remote';
 
 	type VideoType = {
 		ytVideoId: string;
@@ -27,9 +28,9 @@
 		sponsor: { name: string; sponsorId: string } | null;
 	};
 
-	type FullData = { videos: VideoType[] };
+	const { channelId }: { channelId: string } = $props();
 
-	const { channelId, fullData }: { channelId: string; fullData: FullData } = $props();
+	const fullData = $derived(await remoteGetLast7Videos(channelId));
 
 	const columns: ColumnDef<VideoType>[] = [
 		{
@@ -153,21 +154,21 @@
 <div class="space-y-4">
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<h2 class="text-lg font-semibold text-foreground">Last 7 Days</h2>
+			<h2 class="text-foreground text-lg font-semibold">Last 7 Days</h2>
 			<Badge variant="secondary">{fullData.videos.length} videos</Badge>
 		</div>
 	</div>
 	{#if fullData.videos.length === 0}
 		<div
-			class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-12"
+			class="border-border bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed p-12"
 		>
-			<div class="rounded-full bg-muted p-3">
-				<Video class="h-6 w-6 text-muted-foreground" />
+			<div class="bg-muted rounded-full p-3">
+				<Video class="text-muted-foreground h-6 w-6" />
 			</div>
-			<p class="mt-3 text-sm text-muted-foreground">No videos published in the last 7 days</p>
+			<p class="text-muted-foreground mt-3 text-sm">No videos published in the last 7 days</p>
 		</div>
 	{:else}
-		<div class="overflow-hidden rounded-xl border border-border">
+		<div class="border-border overflow-hidden rounded-xl border">
 			<Table.Root>
 				<Table.Header class="bg-muted/80">
 					{#key sorting}
@@ -175,7 +176,7 @@
 							<Table.Row class="hover:bg-transparent">
 								{#each headerGroup.headers as header (header.id)}
 									<Table.Head
-										class="h-11 text-xs font-medium tracking-wide text-muted-foreground uppercase"
+										class="text-muted-foreground h-11 text-xs font-medium tracking-wide uppercase"
 									>
 										{#if !header.isPlaceholder}
 											<FlexRender

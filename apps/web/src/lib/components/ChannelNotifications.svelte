@@ -17,6 +17,7 @@
 	} from '@tanstack/table-core';
 	import { formatRelativeTime } from '$lib/utils';
 	import { Bell } from '@lucide/svelte';
+	import { remoteGetChannelNotifications } from '$lib/remote/channels.remote';
 
 	type Notification = {
 		type: string;
@@ -26,7 +27,9 @@
 		createdAt: Date;
 	};
 
-	const { notifications }: { notifications: Notification[] } = $props();
+	const { channelId }: { channelId: string } = $props();
+
+	const notifications = $derived(await remoteGetChannelNotifications(channelId));
 
 	const getNotificationTypeLabel = (type: string) => {
 		return type

@@ -55,3 +55,45 @@ export const remoteGet2025Sponsors = query(
 		return await authedRemoteRunner(({ db }) => db.getChannelSponsors2025(channelId));
 	}
 );
+
+export const remoteGetVideoDetails = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (videoId) => {
+		return await authedRemoteRunner(({ db }) => db.getVideoDetails(videoId));
+	}
+);
+
+export const remoteGetSponsorDetails = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (sponsorId) => {
+		return await authedRemoteRunner(({ db }) => db.getSponsorDetails(sponsorId));
+	}
+);
+
+export const remoteGetChannelVideos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelVideos({ ytChannelId: channelId, limit: 20 }));
+	}
+);
+
+export const remoteGetChannelNotifications = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelNotifications(channelId));
+	}
+);
+
+export const remoteGetLast7Videos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getLast7VideosByViews(channelId));
+	}
+);
+
+export const remoteGetChannelSponsors = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelSponsors(channelId));
+	}
+);

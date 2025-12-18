@@ -1,0 +1,13 @@
+{
+	"mcpServers": {
+		"morph-mcp": {
+			"type": "stdio",
+			"command": "bunx",
+			"args": ["-y", "@morphllm/morphmcp"],
+			"env": {
+				"MORPH_API_KEY": "sk-DwsW82-GFmuW8qWaoPp3drD6WWdLN07LzH23NGRSu3Wbcx05",
+				"ENABLED_TOOLS": "edit_file,warpgrep_codebase_search"
+			}
+		}
+	}
+}
