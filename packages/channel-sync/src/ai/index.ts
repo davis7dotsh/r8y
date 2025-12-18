@@ -1,8 +1,10 @@
 import { generateObject } from 'ai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import z from 'zod';
-import { Effect } from 'effect';
+import { Effect, Schedule } from 'effect';
 import { TaggedError } from 'effect/Data';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+
+const retrySchedule = Schedule.intersect(Schedule.spaced('1 minute'), Schedule.recurs(3));
 
 class AiError extends TaggedError('AiError') {
 	constructor(message: string, options?: { cause?: unknown }) {
@@ -13,17 +15,23 @@ class AiError extends TaggedError('AiError') {
 }
 
 const aiService = Effect.gen(function* () {
-	const openRouterApiKey = yield* Effect.sync(() => Bun.env.OPENROUTER_API_KEY);
+	const openrouterApiKey = yield* Effect.sync(() => Bun.env.OPENROUTER_API_KEY);
 
-	if (!openRouterApiKey) {
+	if (!openrouterApiKey) {
 		return yield* Effect.die('OPENROUTER_API_KEY is not set');
 	}
 
 	const openrouter = createOpenRouter({
-		apiKey: openRouterApiKey,
+		apiKey: openrouterApiKey,
 		headers: {
 			'HTTP-Referer': 'https://r8y.app',
 			'X-Title': 'r8y'
+		}
+	});
+
+	const hmm = openrouter('openai/gpt-oss-120b', {
+		provider: {
+			only: ['groq']
 		}
 	});
 
@@ -40,11 +48,8 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							model: openrouter('openai/gpt-oss-120b', {
-								provider: {
-									only: ['groq']
-								}
-							}),
+							// @ts-expect-error - AI SDK is just stupid
+							model: hmm,
 							prompt: `Your job is to classify this youtube video's comment. You need to return a boolean true/false for each of the following criteria:
 
             - The comment is flagging an editing mistake
@@ -61,8 +66,10 @@ const aiService = Effect.gen(function* () {
             `,
 							schema: classificationOutputSchema
 						}),
-					catch: (err) => new AiError('Failed to classify comment', { cause: err })
-				});
+					catch: (err) => {
+						return new AiError('Failed to classify comment', { cause: err });
+					}
+				}).pipe(Effect.retry(retrySchedule));
 
 				return result.object;
 			}),
@@ -77,11 +84,8 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							model: openrouter('openai/gpt-oss-120b', {
-								provider: {
-									only: ['groq']
-								}
-							}),
+							// @ts-expect-error - AI SDK is just stupid
+							model: hmm,
 							prompt: `Your job is to parse this youtube video's description to find the sponsor, and a key to identify the sponsor in the db. The following will tell you how to get each of those for this channel:
         
         ${data.sponsorPrompt}
@@ -92,7 +96,7 @@ const aiService = Effect.gen(function* () {
 							schema: sponsorOutputSchema
 						}),
 					catch: (err) => new AiError('Failed to get sponsor', { cause: err })
-				});
+				}).pipe(Effect.retry(retrySchedule));
 
 				return result.object;
 			})

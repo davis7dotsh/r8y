@@ -1,4 +1,4 @@
-import { Effect, Console } from 'effect';
+import { Effect, Console, Ref } from 'effect';
 import { DbService } from './db';
 import { YoutubeService } from './youtube';
 import { AiService } from './ai';
@@ -106,7 +106,7 @@ const channelSyncService = Effect.gen(function* () {
 
 			const comments = yield* youtube.getVideoComments({
 				ytVideoId: args.ytVideoId,
-				maxResults: 55
+				maxResults: 100
 			});
 
 			yield* db.bulkUpsertComments({
@@ -207,7 +207,7 @@ const channelSyncService = Effect.gen(function* () {
 										console.error('LIVE CRAWLER: Failed to sync video', result.left);
 									}
 								}),
-							{ concurrency: 5 }
+							{ concurrency: 4 }
 						);
 					}),
 				{ concurrency: 3 }
@@ -219,7 +219,7 @@ const channelSyncService = Effect.gen(function* () {
 			yield* Console.log(`LIVE CRAWLER TOOK ${performance.now() - start}ms`);
 		});
 
-	const backfillChannel = (args: { ytChannelId: string }) =>
+	const backfillChannel = (args: { ytChannelId: string; maxVideos?: number }) =>
 		Effect.gen(function* () {
 			const start = performance.now();
 			yield* Console.log(`BACKFILL: Starting backfill for channel ${args.ytChannelId}`);
@@ -231,37 +231,45 @@ const channelSyncService = Effect.gen(function* () {
 
 			const videoIds = yield* youtube.getVideosForChannel({
 				ytChannelId: args.ytChannelId,
-				maxResults: 1000
+				maxResults: args.maxVideos ?? 1000
 			});
 
-			yield* Console.log(`BACKFILL: Found ${videoIds.length} videos to backfill`);
+			const totalVideos = videoIds.length;
+			yield* Console.log(`BACKFILL: Found ${totalVideos} videos to backfill`);
 
-			let successCount = 0;
-			let errorCount = 0;
+			const successCount = yield* Ref.make(0);
+			const errorCount = yield* Ref.make(0);
 
 			// Process each video with backfill flag set to true
 			yield* Effect.forEach(
 				videoIds,
 				(videoId) =>
 					Effect.gen(function* () {
-						console.log(`BACKFILL: Syncing video ${videoId}`);
 						const result = yield* syncVideo({ ytVideoId: videoId, isBackfill: true }).pipe(
 							Effect.either
 						);
 
 						if (result._tag === 'Right') {
-							successCount++;
-							console.log(`BACKFILL: Successfully synced video ${videoId}`);
+							const newSuccess = yield* Ref.updateAndGet(successCount, (n) => n + 1);
+							const errors = yield* Ref.get(errorCount);
+							const completed = newSuccess + errors;
+							yield* Console.log(`BACKFILL: [${completed}/${totalVideos}] Synced video ${videoId}`);
 						} else {
-							errorCount++;
-							console.error(`BACKFILL: Failed to sync video ${videoId}`, result.left);
+							const newErrors = yield* Ref.updateAndGet(errorCount, (n) => n + 1);
+							const successes = yield* Ref.get(successCount);
+							const completed = successes + newErrors;
+							yield* Console.error(
+								`BACKFILL: [${completed}/${totalVideos}] Failed video ${videoId}: ${result.left}`
+							);
 						}
 					}),
-				{ concurrency: 5 }
+				{ concurrency: 4 }
 			);
 
+			const finalSuccess = yield* Ref.get(successCount);
+			const finalErrors = yield* Ref.get(errorCount);
 			yield* Console.log(
-				`BACKFILL COMPLETED: ${successCount} videos synced, ${errorCount} videos failed`
+				`BACKFILL COMPLETED: ${finalSuccess} videos synced, ${finalErrors} videos failed`
 			);
 			yield* Console.log(`BACKFILL TOOK ${performance.now() - start}ms`);
 		});

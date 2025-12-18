@@ -1,51 +1,31 @@
+import { remoteCheckAuth, remoteSignOut } from '$lib/remote/auth.remote';
 import { createContext, onMount } from 'svelte';
-import { remoteCheckAuth, remoteSignIn, remoteSignOut } from '../remote/auth.remote';
 
 class AuthStore {
 	isAuthenticated = $state(false);
 	isLoading = $state(true);
 
+	signOut = async () => {
+		this.isLoading = true;
+		await remoteSignOut();
+		this.isAuthenticated = false;
+		this.isLoading = false;
+	};
+
 	constructor() {
 		onMount(async () => {
-			const isAuthenticated = await remoteCheckAuth();
-			console.log('result', isAuthenticated);
-
-			this.isAuthenticated = isAuthenticated;
+			this.isAuthenticated = await remoteCheckAuth();
 			this.isLoading = false;
 		});
 	}
-
-	handleSignIn = async (authPassword: string) => {
-		this.isLoading = true;
-		const result = await remoteSignIn({ authPassword });
-		if (result.success) {
-			this.isAuthenticated = true;
-		}
-		this.isLoading = false;
-		return result.success;
-	};
-
-	handleSignOut = async () => {
-		this.isLoading = true;
-		const result = await remoteSignOut();
-		if (result.success) {
-			this.isAuthenticated = false;
-		}
-		this.isLoading = false;
-	};
 }
 
-const [internalGetAuthStore, internalSetAuthStore] = createContext<AuthStore>();
+const [internalGetStore, internalSetStore] = createContext<AuthStore>();
 
-const getAuthStore = () => {
-	const authStore = internalGetAuthStore();
-	if (!authStore) throw new Error('AuthStore not found');
-	return authStore;
+export const getAuthStore = () => {
+	const store = internalGetStore();
+	if (!store) throw new Error('AuthStore not found');
+	return store;
 };
 
-const setAuthStore = () => {
-	const authStore = new AuthStore();
-	return internalSetAuthStore(authStore);
-};
-
-export { getAuthStore, setAuthStore };
+export const setAuthStore = () => internalSetStore(new AuthStore());

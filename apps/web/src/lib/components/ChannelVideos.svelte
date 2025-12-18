@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannelVideos } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -18,10 +17,7 @@
 	} from '@tanstack/table-core';
 	import { formatNumber, formatDate } from '$lib/utils';
 	import { Video } from '@lucide/svelte';
-
-	const { channelId }: { channelId: string } = $props();
-
-	const videos = $derived(await remoteGetChannelVideos(channelId));
+	import { remoteGetChannelVideos } from '$lib/remote/channels.remote';
 
 	type VideoType = {
 		ytVideoId: string;
@@ -35,6 +31,10 @@
 			sponsorId: string;
 		} | null;
 	};
+
+	const { channelId }: { channelId: string } = $props();
+
+	const videos = $derived(await remoteGetChannelVideos(channelId));
 
 	const columns: ColumnDef<VideoType>[] = [
 		{

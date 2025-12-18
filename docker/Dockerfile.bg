@@ -18,6 +18,7 @@ COPY --from=prune /app/out/full/ .
 RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
 
 FROM debian:stable-slim AS runtime
+ENV NOTIFICATIONS_ENABLED=true
 COPY --from=build /app/worker /worker
 CMD ["/worker"]
 

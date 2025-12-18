@@ -6,25 +6,27 @@
 	"scripts": {
 		"check": "tsc --noEmit",
 		"format": "prettier --write .",
-		"lint": "prettier --check .",
-		"backfill": "bun run scripts/backfill.ts"
+		"lint": "prettier --check ."
 	},
 	"devDependencies": {
+		"@effect/cli": "^0.72.1",
+		"@effect/platform": "^0.93.8",
+		"@effect/platform-bun": "^0.86.0",
 		"@types/bun": "latest",
-		"prettier": "^3.6.2"
+		"prettier": "^3.7.4"
 	},
 	"peerDependencies": {
-		"typescript": "^5",
 		"@r8y/db": "*"
 	},
 	"dependencies": {
-		"@doist/todoist-api-typescript": "^6.0.0",
-		"@openrouter/ai-sdk-provider": "^1.2.0",
-		"ai": "^5.0.87",
-		"discord.js": "^14.24.2",
-		"effect": "^3.19.5",
+		"@ai-sdk/groq": "^2.0.33",
+		"@doist/todoist-api-typescript": "^6.2.1",
+		"@openrouter/ai-sdk-provider": "^1.5.4",
+		"ai": "^5.0.115",
+		"discord.js": "^14.25.1",
+		"effect": "^3.19.12",
 		"googleapis": "^164.1.0",
 		"neverthrow": "^8.2.0",
-		"zod": "^4.1.12"
+		"zod": "^4.1.13"
 	}
 }

@@ -1,8 +1,7 @@
-import { command, getRequestEvent } from '$app/server';
-import z from 'zod';
-import { Effect } from 'effect';
-import { remoteRunner } from './helpers';
+import { command, form, getRequestEvent, query } from '$app/server';
 import { AuthService } from '$lib/services/auth';
+import { Effect, Schema } from 'effect';
+import { remoteRunner } from './helpers';
 
 export const remoteSignOut = command(async () => {
 	return await remoteRunner(
@@ -14,30 +13,30 @@ export const remoteSignOut = command(async () => {
 	);
 });
 
-export const remoteSignIn = command(
-	z.object({
-		authPassword: z.string()
-	}),
-	async ({ authPassword }) => {
-		return await remoteRunner(
-			Effect.gen(function* () {
-				const auth = yield* AuthService;
-				const event = yield* Effect.sync(() => getRequestEvent());
-				return yield* auth.signIn({
-					event,
-					authPassword
-				});
-			})
-		);
-	}
-);
+const signInSchema = Schema.Struct({
+	authPassword: Schema.String
+}).pipe(Schema.standardSchemaV1);
 
-export const remoteCheckAuth = command(async () => {
+export const remoteSignIn = form(signInSchema, async (formData) => {
 	return await remoteRunner(
 		Effect.gen(function* () {
-			const event = yield* Effect.sync(() => getRequestEvent());
 			const auth = yield* AuthService;
-			return yield* auth.checkAuth(event);
+			const event = yield* Effect.sync(() => getRequestEvent());
+			return yield* auth.signIn({ event, authPassword: formData.authPassword });
+		})
+	);
+});
+
+export const remoteCheckAuth = query(async () => {
+	return await remoteRunner(
+		Effect.gen(function* () {
+			const auth = yield* AuthService;
+
+			const event = yield* Effect.sync(() => getRequestEvent());
+
+			const res = yield* auth.checkAuth(event);
+
+			return res;
 		})
 	);
 });

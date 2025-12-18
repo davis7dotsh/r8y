@@ -24,8 +24,8 @@
 
 	<div class="mb-8 flex items-start justify-between">
 		<div>
-			<h1 class="text-2xl font-bold text-foreground">Channels</h1>
-			<p class="mt-1 text-sm text-muted-foreground">Manage and view statistics for your channels</p>
+			<h1 class="text-foreground text-2xl font-bold">Channels</h1>
+			<p class="text-muted-foreground mt-1 text-sm">Manage and view statistics for your channels</p>
 		</div>
 		<Button href="/app/channel/create" size="sm">
 			<Plus class="h-4 w-4" />
@@ -33,22 +33,5 @@
 		</Button>
 	</div>
 
-	<svelte:boundary>
-		{#snippet pending()}
-			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each Array(3) as _}
-					<div class="animate-pulse rounded-xl border border-border bg-card p-5">
-						<div class="h-6 w-32 rounded bg-muted"></div>
-						<div class="mt-2 h-4 w-48 rounded bg-muted"></div>
-						<div class="mt-5 grid grid-cols-2 gap-3">
-							<div class="h-24 rounded-lg bg-muted"></div>
-							<div class="h-24 rounded-lg bg-muted"></div>
-						</div>
-						<div class="mt-4 h-20 rounded-lg bg-muted"></div>
-					</div>
-				{/each}
-			</div>
-		{/snippet}
-		<ChannelsList />
-	</svelte:boundary>
+	<ChannelsList />
 </div>

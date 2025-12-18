@@ -19,21 +19,25 @@
 	} from '@tanstack/table-core';
 	import { formatDate } from '$lib/utils';
 
-	const {
-		sponsorData,
-		channelId
-	}: {
-		sponsorData: Awaited<
-			ReturnType<typeof import('$lib/remote/channels.remote').remoteGetSponsorDetails>
-		>;
-		channelId: string;
-	} = $props();
+	type Comment = {
+		ytVideoId: string;
+		ytCommentId: string;
+		text: string;
+		videoTitle: string;
+		author: string;
+		likeCount: number;
+		publishedAt: Date | string;
+	};
+
+	type SponsorData = {
+		sponsorMentionComments: Comment[];
+	};
+
+	const { sponsorData, channelId }: { sponsorData: SponsorData; channelId: string } = $props();
 
 	const getYouTubeCommentUrl = (videoId: string, commentId: string) => {
 		return `https://www.youtube.com/watch?v=${videoId}&lc=${commentId}`;
 	};
-
-	type Comment = (typeof sponsorData.sponsorMentionComments)[number];
 
 	const columns: ColumnDef<Comment>[] = [
 		{
@@ -203,7 +207,7 @@
 						{#each table.getRowModel().rows as row (row.id)}
 							<Table.Row class="group">
 								{#each row.getVisibleCells() as cell (cell.id)}
-									<Table.Cell style="width: {cell.column.getSize()}px" class="py-3">
+									<Table.Cell style="width: {cell.column.getSize()}px" class="py-3 overflow-hidden">
 										<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 									</Table.Cell>
 								{/each}

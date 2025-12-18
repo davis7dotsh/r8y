@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { remoteGetChannelNotifications } from '$lib/remote/channels.remote';
 	import { createRawSnippet } from 'svelte';
 	import {
 		renderComponent,
@@ -18,6 +17,15 @@
 	} from '@tanstack/table-core';
 	import { formatRelativeTime } from '$lib/utils';
 	import { Bell } from '@lucide/svelte';
+	import { remoteGetChannelNotifications } from '$lib/remote/channels.remote';
+
+	type Notification = {
+		type: string;
+		success: boolean;
+		message: string;
+		videoTitle: string;
+		createdAt: Date;
+	};
 
 	const { channelId }: { channelId: string } = $props();
 
@@ -29,8 +37,6 @@
 			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
 	};
-
-	type Notification = (typeof notifications)[number];
 
 	const columns: ColumnDef<Notification>[] = [
 		{

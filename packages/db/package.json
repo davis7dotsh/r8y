@@ -4,23 +4,25 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
-		"db:push": "drizzle-kit push",
+		"dev": "drizzle-kit studio",
 		"check": "tsc --noEmit",
 		"format": "prettier --write .",
 		"lint": "prettier --check ."
 	},
 	"private": true,
 	"devDependencies": {
+		"@effect/cli": "^0.72.1",
+		"@effect/platform": "^0.93.8",
+		"@effect/platform-bun": "^0.86.0",
+		"@r8y/channel-sync": "*",
+		"effect": "^3.19.12",
 		"@types/bun": "latest",
 		"dotenv": "^17.2.3",
-		"drizzle-kit": "^0.31.7",
-		"prettier": "^3.6.2"
-	},
-	"peerDependencies": {
-		"typescript": "^5.9.3"
+		"drizzle-kit": "^0.31.8",
+		"prettier": "^3.7.4"
 	},
 	"dependencies": {
-		"drizzle-orm": "^0.44.7",
-		"mysql2": "^3.15.3"
+		"drizzle-orm": "^0.45.1",
+		"pg": "^8.16.3"
 	}
 }

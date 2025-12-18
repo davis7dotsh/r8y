@@ -1,59 +1,21 @@
 import { form, query } from '$app/server';
-import { Effect } from 'effect';
+import { Effect, Schema } from 'effect';
 import z from 'zod';
 import { authedRemoteRunner } from './helpers';
 
-export const remoteGetAllChannels = query(async () => {
-	return authedRemoteRunner(({ db }) => db.getAllChannels());
-});
+const createChannelSchema = Schema.Struct({
+	channelName: Schema.String.pipe(Schema.nonEmptyString()),
+	ytChannelId: Schema.String.pipe(Schema.nonEmptyString()),
+	findSponsorPrompt: Schema.String
+}).pipe(Schema.standardSchemaV1);
 
-export const remoteCreateChannel = form(
-	z.object({
-		channelName: z.string(),
-		findSponsorPrompt: z.string(),
-		ytChannelId: z.string()
-	}),
-	async (data) => {
-		return authedRemoteRunner(({ db }) =>
-			Effect.gen(function* () {
-				yield* db.createChannel(data);
-				return { success: true };
-			})
-		);
-	}
-);
-
-export const remoteGetChannelsWithStats = query(async () => {
-	return authedRemoteRunner(({ db }) => db.getChannelsWithStats());
-});
-
-export const remoteGetLast7VideosByViews = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) => db.getLast7VideosByViews(ytChannelId));
-});
-
-export const remoteGetChannelDetails = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) => db.getChannel(ytChannelId));
-});
-
-export const remoteGetChannelVideos = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) =>
-		db.getChannelVideos({
-			ytChannelId,
-			limit: 20
+export const remoteCreateChannel = form(createChannelSchema, async (data) => {
+	await authedRemoteRunner(({ db }) =>
+		Effect.gen(function* () {
+			yield* db.createChannel(data);
 		})
 	);
-});
-
-export const remoteGetChannelNotifications = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) => db.getChannelNotifications(ytChannelId));
-});
-
-export const remoteGetChannelSponsors = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) => db.getChannelSponsors(ytChannelId));
-});
-
-export const remoteGetSponsorDetails = query(z.string(), async (sponsorId) => {
-	return authedRemoteRunner(({ db }) => db.getSponsorDetails(sponsorId));
+	return { success: true, ytChannelId: data.ytChannelId };
 });
 
 export const remoteSearchVideosAndSponsors = query(
@@ -62,23 +24,76 @@ export const remoteSearchVideosAndSponsors = query(
 		channelId: z.string()
 	}),
 	async (args) => {
-		return authedRemoteRunner(({ db }) => db.searchVideosAndSponsors(args));
+		const { results } = await authedRemoteRunner(({ db }) => db.searchVideosAndSponsors(args));
+
+		return results;
 	}
 );
 
-export const remoteGetVideoDetails = query(z.string(), async (ytVideoId) => {
-	return authedRemoteRunner(({ db }) => db.getVideoDetails(ytVideoId));
+export const remoteGetAllChannels = query(async () => {
+	const results = await authedRemoteRunner(({ db }) => db.getChannelsWithStats());
+	return results;
 });
 
-export const remoteGetChannel2025Data = query(z.string(), async (ytChannelId) => {
-	return authedRemoteRunner(({ db }) =>
-		Effect.gen(function* () {
-			const [videos, sponsors] = yield* Effect.all(
-				[db.getChannelVideos2025(ytChannelId), db.getChannelSponsors2025(ytChannelId)],
-				{ concurrency: 'unbounded' }
-			);
+export const remoteGetChannel = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannel(channelId));
+	}
+);
 
-			return { videos, sponsors };
-		})
-	);
-});
+export const remoteGet2025Videos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelVideos2025(channelId));
+	}
+);
+
+export const remoteGet2025Sponsors = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelSponsors2025(channelId));
+	}
+);
+
+export const remoteGetVideoDetails = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (videoId) => {
+		return await authedRemoteRunner(({ db }) => db.getVideoDetails(videoId));
+	}
+);
+
+export const remoteGetSponsorDetails = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (sponsorId) => {
+		return await authedRemoteRunner(({ db }) => db.getSponsorDetails(sponsorId));
+	}
+);
+
+export const remoteGetChannelVideos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelVideos({ ytChannelId: channelId, limit: 20 }));
+	}
+);
+
+export const remoteGetChannelNotifications = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelNotifications(channelId));
+	}
+);
+
+export const remoteGetLast7Videos = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getLast7VideosByViews(channelId));
+	}
+);
+
+export const remoteGetChannelSponsors = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelSponsors(channelId));
+	}
+);

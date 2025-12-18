@@ -1,37 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { getAuthStore } from '$lib/stores/AuthStore.svelte.js';
-	import RootLoader from '$lib/components/RootLoader.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import Spinner from '$lib/components/ui/spinner/spinner.svelte';
+	import { remoteSignIn } from '$lib/remote/auth.remote.js';
+	import { getAuthStore } from '$lib/stores/AuthStore.svelte';
 
 	const authStore = getAuthStore();
 
-	let authPassword = $state('');
-
-	const handleSubmit = async (event: SubmitEvent) => {
-		event.preventDefault();
-		const result = await authStore.handleSignIn(authPassword);
-		if (!result) {
-			alert('Failed to sign in');
-			return;
-		}
-		goto('/app');
-	};
+	let isSubmitting = $state(false);
+	let error = $state<string | null>(null);
 </script>
 
-<svelte:head>
-	<title>r8y - YT Analytics & Sponsor Tracking</title>
-	<meta
-		name="description"
-		content="Track YouTube channel analytics, monitor sponsors, and analyze video performance across your channels."
-	/>
-</svelte:head>
-
-{#if authStore.isLoading}
-	<RootLoader />
-{:else if authStore.isAuthenticated}
+{#if authStore.isAuthenticated}
 	<main class="flex min-h-screen w-full grow flex-col items-center justify-center">
 		<div class="flex flex-col items-center gap-6 text-center">
 			<div class="space-y-2">
@@ -48,18 +30,45 @@
 				<h1 class="text-foreground text-3xl font-bold">r8y 3.0</h1>
 				<p class="text-muted-foreground text-sm">Sign in to access your dashboard</p>
 			</div>
-			<form class="space-y-4" onsubmit={handleSubmit}>
+			<form
+				class="space-y-4"
+				{...remoteSignIn.enhance(async ({ submit }) => {
+					isSubmitting = true;
+					error = null;
+					try {
+						await submit();
+						if (remoteSignIn.result?.success) {
+							await goto('/app');
+						} else {
+							error = 'Invalid password';
+						}
+					} catch {
+						error = 'Sign in failed';
+					} finally {
+						isSubmitting = false;
+					}
+				})}
+			>
 				<div class="space-y-2">
 					<Label for="password">Password</Label>
 					<Input
 						type="password"
 						id="password"
+						name="authPassword"
 						placeholder="Enter your password"
-						bind:value={authPassword}
 						class="w-full"
 					/>
 				</div>
-				<Button type="submit" class="w-full">Sign in</Button>
+				{#if error}
+					<p class="text-destructive text-sm">{error}</p>
+				{/if}
+				<Button type="submit" class="w-full" disabled={isSubmitting}>
+					{#if isSubmitting}
+						<Spinner />
+					{:else}
+						Sign in
+					{/if}
+				</Button>
 			</form>
 		</div>
 	</main>

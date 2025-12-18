@@ -132,7 +132,12 @@ const youtubeService = Effect.gen(function* () {
 
 				let videoIds: string[] = [];
 				let nextPageToken: string | undefined;
-				const maxResults = args.maxResults || 50;
+				const maxSearchResults = args.maxResults
+					? args.maxResults < 50
+						? args.maxResults
+						: 50
+					: 50;
+				const maxResults = args.maxResults ? args.maxResults : 50;
 
 				do {
 					const playlistResponse = yield* Effect.tryPromise({
@@ -140,7 +145,7 @@ const youtubeService = Effect.gen(function* () {
 							youtube.playlistItems.list({
 								part: ['contentDetails'],
 								playlistId: uploadsPlaylistId,
-								maxResults: 50,
+								maxResults: maxSearchResults,
 								...(nextPageToken !== undefined && { pageToken: nextPageToken })
 							}),
 						catch: (err) =>
