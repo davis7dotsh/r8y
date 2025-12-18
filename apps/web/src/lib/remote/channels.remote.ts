@@ -71,9 +71,16 @@ export const remoteGetSponsorDetails = query(
 );
 
 export const remoteGetChannelVideos = query(
-	Schema.String.pipe(Schema.standardSchemaV1),
-	async (channelId) => {
-		return await authedRemoteRunner(({ db }) => db.getChannelVideos({ ytChannelId: channelId, limit: 20 }));
+	z.object({
+		channelId: z.string(),
+		page: z.number().default(1),
+		pageSize: z.number().default(20)
+	}),
+	async ({ channelId, page, pageSize }) => {
+		const offset = (page - 1) * pageSize;
+		return await authedRemoteRunner(({ db }) =>
+			db.getChannelVideos({ ytChannelId: channelId, limit: pageSize, offset })
+		);
 	}
 );
 
@@ -95,5 +102,12 @@ export const remoteGetChannelSponsors = query(
 	Schema.String.pipe(Schema.standardSchemaV1),
 	async (channelId) => {
 		return await authedRemoteRunner(({ db }) => db.getChannelSponsors(channelId));
+	}
+);
+
+export const remoteGetChannelSponsorMentions = query(
+	Schema.String.pipe(Schema.standardSchemaV1),
+	async (channelId) => {
+		return await authedRemoteRunner(({ db }) => db.getChannelSponsorMentions(channelId));
 	}
 );

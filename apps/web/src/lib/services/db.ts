@@ -738,9 +738,9 @@ const dbService = Effect.gen(function* () {
 				};
 			}),
 
-		getChannelVideos: (args: { ytChannelId: string; limit: number }) =>
+		getChannelVideos: (args: { ytChannelId: string; limit: number; offset: number }) =>
 			Effect.gen(function* () {
-				const { ytChannelId, limit } = args;
+				const { ytChannelId, limit, offset } = args;
 				const videos = yield* Effect.tryPromise({
 					try: () =>
 						drizzle
@@ -750,6 +750,7 @@ const dbService = Effect.gen(function* () {
 							})
 							.from(DB_SCHEMA.videos)
 							.limit(limit)
+							.offset(offset)
 							.leftJoin(
 								DB_SCHEMA.sponsorToVideos,
 								eq(DB_SCHEMA.sponsorToVideos.ytVideoId, DB_SCHEMA.videos.ytVideoId)
@@ -766,10 +767,25 @@ const dbService = Effect.gen(function* () {
 						})
 				});
 
-				return videos.map((v) => ({
-					...v.video,
-					sponsor: v.sponsor || null
-				}));
+				const totalCount = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({ count: count() })
+							.from(DB_SCHEMA.videos)
+							.where(eq(DB_SCHEMA.videos.ytChannelId, ytChannelId)),
+					catch: (err) =>
+						new DbError('Failed to count channel videos', {
+							cause: err
+						})
+				}).pipe(Effect.map((res) => Number(res[0]?.count ?? 0)));
+
+				return {
+					videos: videos.map((v) => ({
+						...v.video,
+						sponsor: v.sponsor || null
+					})),
+					totalCount
+				};
 			}),
 
 		getChannelNotifications: (ytChannelId: string) =>
@@ -1144,6 +1160,52 @@ const dbService = Effect.gen(function* () {
 						daysAgo
 					};
 				});
+			}),
+
+		getChannelSponsorMentions: (ytChannelId: string) =>
+			Effect.gen(function* () {
+				const mentions = yield* Effect.tryPromise({
+					try: () =>
+						drizzle
+							.select({
+								comment: DB_SCHEMA.comments,
+								videoTitle: DB_SCHEMA.videos.title,
+								sponsorName: DB_SCHEMA.sponsors.name,
+								sponsorId: DB_SCHEMA.sponsors.sponsorId
+							})
+							.from(DB_SCHEMA.comments)
+							.innerJoin(
+								DB_SCHEMA.videos,
+								eq(DB_SCHEMA.videos.ytVideoId, DB_SCHEMA.comments.ytVideoId)
+							)
+							.leftJoin(
+								DB_SCHEMA.sponsorToVideos,
+								eq(DB_SCHEMA.sponsorToVideos.ytVideoId, DB_SCHEMA.videos.ytVideoId)
+							)
+							.leftJoin(
+								DB_SCHEMA.sponsors,
+								eq(DB_SCHEMA.sponsors.sponsorId, DB_SCHEMA.sponsorToVideos.sponsorId)
+							)
+							.where(
+								and(
+									eq(DB_SCHEMA.videos.ytChannelId, ytChannelId),
+									eq(DB_SCHEMA.comments.isSponsorMention, true)
+								)
+							)
+							.orderBy(desc(DB_SCHEMA.comments.publishedAt))
+							.limit(40),
+					catch: (err) =>
+						new DbError('Failed to get channel sponsor mentions', {
+							cause: err
+						})
+				});
+
+				return mentions.map((m) => ({
+					...m.comment,
+					videoTitle: m.videoTitle,
+					sponsorName: m.sponsorName,
+					sponsorId: m.sponsorId
+				}));
 			}),
 
 		getVideoDetails: (ytVideoId: string) =>
