@@ -32,7 +32,7 @@ const aiService = Effect.gen(function* () {
 	const hmm = openrouter('openai/gpt-oss-120b', {
 		extraBody: {
 			provider: {
-				only: ['groq']
+				only: ['groq', 'cerebras']
 			}
 		}
 	});
