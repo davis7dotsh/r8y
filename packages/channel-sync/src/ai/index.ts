@@ -30,8 +30,10 @@ const aiService = Effect.gen(function* () {
 	});
 
 	const hmm = openrouter('openai/gpt-oss-120b', {
-		provider: {
-			only: ['groq']
+		extraBody: {
+			provider: {
+				only: ['groq', 'cerebras']
+			}
 		}
 	});
 
@@ -48,7 +50,6 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							// @ts-expect-error - AI SDK is just stupid
 							model: hmm,
 							prompt: `Your job is to classify this youtube video's comment. You need to return a boolean true/false for each of the following criteria:
 
@@ -84,7 +85,6 @@ const aiService = Effect.gen(function* () {
 				const result = yield* Effect.tryPromise({
 					try: () =>
 						generateObject({
-							// @ts-expect-error - AI SDK is just stupid
 							model: hmm,
 							prompt: `Your job is to parse this youtube video's description to find the sponsor, and a key to identify the sponsor in the db. The following will tell you how to get each of those for this channel:
         
