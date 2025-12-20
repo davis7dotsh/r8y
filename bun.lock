@@ -79,6 +79,7 @@
       "name": "@r8y/channel-sync",
       "dependencies": {
         "@ai-sdk/groq": "^2.0.33",
+        "@boundaryml/baml": "^0.215.0",
         "@doist/todoist-api-typescript": "^6.2.1",
         "@openrouter/ai-sdk-provider": "^1.5.4",
         "ai": "^5.0.115",
@@ -126,6 +127,24 @@
     "@ai-sdk/provider": ["@ai-sdk/provider@2.0.0", "", { "dependencies": { "json-schema": "^0.4.0" } }, "sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA=="],
 
     "@ai-sdk/provider-utils": ["@ai-sdk/provider-utils@3.0.19", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@standard-schema/spec": "^1.0.0", "eventsource-parser": "^3.0.6" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-W41Wc9/jbUVXVwCN/7bWa4IKe8MtxO3EyA0Hfhx6grnmiYlCvpI8neSYWFE0zScXJkgA/YK3BRybzgyiXuu6JA=="],
+
+    "@boundaryml/baml": ["@boundaryml/baml@0.215.0", "", { "dependencies": { "@scarf/scarf": "^1.3.0" }, "optionalDependencies": { "@boundaryml/baml-darwin-arm64": "0.215.0", "@boundaryml/baml-darwin-x64": "0.215.0", "@boundaryml/baml-linux-arm64-gnu": "0.215.0", "@boundaryml/baml-linux-arm64-musl": "0.215.0", "@boundaryml/baml-linux-x64-gnu": "0.215.0", "@boundaryml/baml-linux-x64-musl": "0.215.0", "@boundaryml/baml-win32-arm64-msvc": "0.215.0", "@boundaryml/baml-win32-x64-msvc": "0.215.0" }, "bin": { "baml-cli": "cli.js", "baml": "cli.js" } }, "sha512-LDi43sTFDWQFPywERVD11l09fqsDQvVoujNyIYd5hNZFA2jI/UbrgtH1+KZ2S7SCvLfJlHmKrgM8f990/fgbAA=="],
+
+    "@boundaryml/baml-darwin-arm64": ["@boundaryml/baml-darwin-arm64@0.215.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Y3BRTnAEoHIBURd3gIBroJgy1/2P2DZRgCEpMkaIb8oNl3l122C/pYu4j6jft4s0ehQRRqfS1hAO7m08zxmC8w=="],
+
+    "@boundaryml/baml-darwin-x64": ["@boundaryml/baml-darwin-x64@0.215.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-FYnAfVEMuL0XpFIy2R5NKteAwsg3lAQTjHwJUPS3Go5lvi0x90g+X4UxpL0IFndKz9anjFsZezH926+NF+NOlg=="],
+
+    "@boundaryml/baml-linux-arm64-gnu": ["@boundaryml/baml-linux-arm64-gnu@0.215.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-5RjllnLbk+O1mWLQf2TW60Z8zmLpkhwLWn4/h4ce0egV9pGKuHCIvV9NGl0hXmhMNV1JzJ4/KU38t2YAjpGNVQ=="],
+
+    "@boundaryml/baml-linux-arm64-musl": ["@boundaryml/baml-linux-arm64-musl@0.215.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-ucEkzDWb9SnmbFcs5TYP4R8UirtT0p/fPKOaGEuqbnFQAhUZvSo4WyJaTz4N5RdRdPq4//CJp9jVQp5y9qJ1DQ=="],
+
+    "@boundaryml/baml-linux-x64-gnu": ["@boundaryml/baml-linux-x64-gnu@0.215.0", "", { "os": "linux", "cpu": "x64" }, "sha512-WvJ9UqXcgpnstpPjkDekkb066QTqWIJwbW37VFoIo8hCH147Lbf0GjDib8DRcWl+o3dxCTnPszxuMYtksKFngQ=="],
+
+    "@boundaryml/baml-linux-x64-musl": ["@boundaryml/baml-linux-x64-musl@0.215.0", "", { "os": "linux", "cpu": "x64" }, "sha512-IYkW1WU/LDSnFcFdrSrd+GDZQJYXwGhKIdRnApH1dtt0CkpBd1CF2b7WfeE74Sz8L+I+YJ7U0AZlS3Xe3XvoLQ=="],
+
+    "@boundaryml/baml-win32-arm64-msvc": ["@boundaryml/baml-win32-arm64-msvc@0.215.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-gLE3H0qbqxtRrkd6hHbS3GKUQhQIHUfp1htxCzQTXVqChhtd+gWnVW0rf80EgL54Y0Ds1Z/r0UAi25Y029ibWA=="],
+
+    "@boundaryml/baml-win32-x64-msvc": ["@boundaryml/baml-win32-x64-msvc@0.215.0", "", { "os": "win32", "cpu": "x64" }, "sha512-L83apHU5S1DWcyq1zLpzba1ho68iYrgiRQr1oLXrhj1NEW9hQXboK4d+f8EJu+qnlKzk6knmBjf8j6KHXUxEZQ=="],
 
     "@discordjs/builders": ["@discordjs/builders@1.13.1", "", { "dependencies": { "@discordjs/formatters": "^0.6.2", "@discordjs/util": "^1.2.0", "@sapphire/shapeshift": "^4.0.0", "discord-api-types": "^0.38.33", "fast-deep-equal": "^3.1.3", "ts-mixer": "^6.0.4", "tslib": "^2.6.3" } }, "sha512-cOU0UDHc3lp/5nKByDxkmRiNZBpdp0kx55aarbiAfakfKJHlxv/yFW1zmIqCAmwH5CRlrH9iMFKJMpvW4DPB+w=="],
 
@@ -364,6 +383,8 @@
     "@sapphire/shapeshift": ["@sapphire/shapeshift@4.0.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "lodash": "^4.17.21" } }, "sha512-d9dUmWVA7MMiKobL3VpLF8P2aeanRTu6ypG2OIaEv/ZHH/SUQ2iHOVyi5wAPjQ+HmnMuL0whK9ez8I/raWbtIg=="],
 
     "@sapphire/snowflake": ["@sapphire/snowflake@3.5.3", "", {}, "sha512-jjmJywLAFoWeBi1W7994zZyiNWPIiqRRNAmSERxyg93xRGzNYvGjlZ0gR6x0F4gPRi2+0O6S71kOZYyr3cxaIQ=="],
+
+    "@scarf/scarf": ["@scarf/scarf@1.4.0", "", {}, "sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ=="],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.0.0", "", {}, "sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA=="],
 
