@@ -2,7 +2,7 @@ import { Effect, Schedule } from 'effect';
 import { TaggedError } from 'effect/Data';
 import { b } from '../baml_client';
 
-const retrySchedule = Schedule.intersect(Schedule.spaced('1 minute'), Schedule.recurs(3));
+const retrySchedule = Schedule.intersect(Schedule.spaced('1 minute'), Schedule.recurs(2));
 
 class AiError extends TaggedError('AiError') {
 	constructor(message: string, options?: { cause?: unknown }) {

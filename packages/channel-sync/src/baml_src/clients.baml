@@ -1,5 +1,10 @@
+retry_policy TryThreeTimes {
+  max_retries 3
+}
+
 client<llm> OpenrouterGptOssClient {
   provider "openai-generic"
+  retry_policy TryThreeTimes
   options {
     base_url "https://openrouter.ai/api/v1"
     api_key env.OPENROUTER_API_KEY
