@@ -20,6 +20,7 @@ RUN bunx baml-cli generate --from ./packages/channel-sync/src/baml_src
 RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
 
 FROM debian:stable-slim AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 ENV NOTIFICATIONS_ENABLED=true
 COPY --from=build /app/worker /worker
 CMD ["/worker"]
