@@ -7,8 +7,7 @@
 		"check": "tsc --noEmit",
 		"format": "prettier --write .",
 		"lint": "prettier --check .",
-		"gen:bml": "baml-cli generate --from ./src/baml_src",
-		"postinstall": "bun run gen:bml"
+		"gen": "baml-cli generate --from ./src/baml_src"
 	},
 	"devDependencies": {
 		"@effect/cli": "^0.72.1",

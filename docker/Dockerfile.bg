@@ -10,11 +10,13 @@ FROM base AS install
 WORKDIR /app
 COPY --from=prune /app/out/json/ .
 RUN bun install --frozen-lockfile
+RUN ls -la >&2
 
 FROM base AS build
 WORKDIR /app
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=prune /app/out/full/ .
+RUN bunx baml-cli generate --from ./packages/channel-sync/src/baml_src
 RUN bun build apps/bg/src/index.ts --compile --minify --outfile /app/worker
 
 FROM debian:stable-slim AS runtime
