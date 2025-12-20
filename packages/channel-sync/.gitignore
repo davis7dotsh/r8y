@@ -10,6 +10,8 @@ dist
 coverage
 *.lcov
 
+baml_client/
+
 # logs
 logs
 _.log
