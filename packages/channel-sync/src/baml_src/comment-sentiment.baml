@@ -9,7 +9,7 @@ function ClassifyComment(comment: string, videoSponsor: string | null) -> Commen
     client OpenrouterGptOssClient
     prompt #"
         Read this comment decide if it mentions an editing mistake (something wrong with the video's audio, video, title, thumbnail, or description), the video's sponsor, and/or is a question.
-        Also decide if the comment is positive or negative.
+        Also decide if the comment is generally positive or negative.
 
         The video's sponsor is {{ videoSponsor }}
 
@@ -26,6 +26,11 @@ test g2i_mention {
     comment "Can confirm, used g2i and have made a hire.  BUT... they did not go from interview to first pull request in one week.  It was 2 pull requests.  :)"
     videoSponsor "g2i"
   }
+  @@assert({{ this.isSponsorMention == true}})
+  @@assert({{ this.isQuestion == false}})
+  @@assert({{ this.isEditingMistake == false}})
+  // need to optimize the prompt for this...
+  @@assert({{ this.isPositiveComment == true}})
 }
 
 test positive_comment {
