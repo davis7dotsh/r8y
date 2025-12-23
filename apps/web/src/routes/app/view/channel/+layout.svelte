@@ -17,7 +17,7 @@
 
 	const tabs = [
 		{ label: 'Overview', path: 'overview' },
-		{ label: 'Last 7 Days', path: 'last7days' },
+		{ label: 'Last 7 Videos', path: 'last7days' },
 		{ label: 'Sponsors', path: 'sponsors' }
 	] as const;
 

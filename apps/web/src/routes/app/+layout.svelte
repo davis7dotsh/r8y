@@ -4,11 +4,11 @@
 	import { mode } from 'mode-watcher';
 	import { Moon, Sun } from '@lucide/svelte';
 	import GlobalAppCommand from '$lib/components/GlobalAppCommand.svelte';
-	import { setAuthStore } from '$lib/stores/AuthStore.svelte';
+	import { getAuthStore } from '$lib/stores/AuthStore.svelte';
 
 	const { children } = $props();
 
-	const authStore = setAuthStore();
+	const authStore = getAuthStore();
 </script>
 
 {#if !authStore.isAuthenticated}
